@@ -1,5 +1,16 @@
 define(function(){
 
+	if(!Function.prototype._$bind){
+		Function.prototype._$bind = function(context){
+			var
+				constructor = this.constructor,
+				args = [].slice.call(arguments, 1);
+			return function(){
+				constructor.apply(context, args);
+			}
+		}
+	}
+
 	return function(obj){
 
 		return extend.call(function(){}, obj);
@@ -37,8 +48,8 @@ define(function(){
 
 			Clazz.prototype = proto;
 			Clazz.prototype.constructor = Clazz;
-			Clazz.prototype.extend = extend;
-			Clazz.extend = extend;
+			Clazz.prototype._$extend = extend;
+			Clazz._$extend = extend;
 
 			function isFunction(f){
 				return {}.toString.call(f).toLowerCase() == '[object function]';
@@ -47,7 +58,7 @@ define(function(){
 			function injectSuper(fn, superFn){
 					
 				return function(){
-					this._super = superFn;//use _super instead of super because ie8- forbid to  use super various
+					this.__super = superFn;//use __super instead of super because ie8- forbid to  use super various
 					fn.apply(this, arguments);
 				}
 				

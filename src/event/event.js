@@ -23,31 +23,36 @@ function(EventEmitter, u, GitEvent){
 				this.__eventMap = {};
 
 				//the event type surpported
-				this.__surpportEventType = [
-					'click',
-					'dbclick', 
-					'change', 
-					'keydown',
-					'keyup',
-					'keypress',
-					'focus',
-					'blur',
-					/*'mouseover',
-					'mousemove',
-					'mouseout',
-					'mousedown',
-					'mouseup',
-					'resize',
-					'load',
-					'unload'*/
-				];
-
-				u._$forEach(this.__surpportEventType, function(type){
-			        u._$addEvent(document, type, this._onDocumentEvent._$bind(this));
-			    }, this);
+				this.__supportedEventMap = {
+					click: false,
+					dbclick: false, 
+					change: false, 
+					keydown: false,
+					keyup: false,
+					keypress: false,
+					focus: false,
+					blur: false,
+					mouseover: false,
+					mousemove: false,
+					mouseout: false,
+					mousedown: false,
+					mouseup: false,
+					resize: false,
+					load: false,
+					unload: false
+				};
 
 				
 			},
+
+			/**
+			 * @method	_$on
+			 * @describe add event handler to the dom
+			 * @param{Dom} the dom to bind event
+			 * @param{String} the type of the event
+			 * @param{Function} the handler of the event
+			 * return{Void}
+			 */
 
 			_$on: function(dom, type, handler){
 				var
@@ -61,9 +66,22 @@ function(EventEmitter, u, GitEvent){
 				eventArea[type] = eventArea[type] || [];
 				eventArea[type].push(handler);
 
+				//adding the supported event dynamicly to reduce the pression of the event dispatcher 
+				if(!this.__supportedEventMap[type]){
+					this.__supportedEventMap[type] = true;
+					u._$addEvent(document, type, this._eventDispatcher._$bind(this));
+				}
+
 			},
 
-
+			/**
+			 * @method	_$off
+			 * @describe remove event handler from the dom
+			 * @param{Dom} the dom to remove event
+			 * @param{String optional} the type of the event, being none to remove all type event handlers of the dom
+			 * @param{Function optional} the handler of the event, being none to remove all handlers of the specified type
+			 * return{Void}
+			 */
 			_$off: function(dom, type, handler){
 				var
 					gitId = dom.getAttribute('gitId'),
@@ -99,6 +117,13 @@ function(EventEmitter, u, GitEvent){
 
 			},
 
+			/**
+			 * @method	_$clear
+			 * @describe clear the event handlers of dom, or clear total event map
+			 * @param{Dom} the dom to clear event handlers
+			 * return{Void}
+			 */
+
 			_$clear: function(dom){
 				if(dom != undefined){
 					this._$off(dom);
@@ -108,6 +133,15 @@ function(EventEmitter, u, GitEvent){
 				
 			},
 
+
+			/**
+			 * @method	_$trigger
+			 * @describe trigger a event of the dom
+			 * @param{Dom} the dom to trigger the event
+			 * @param{String} the type of the event
+			 * @param{Object} instance of the GitEvent or the data to be passed into the handlers
+			 * return{Void}
+			 */
 			_$trigger: function(dom, type, data){
 				var
 					gitId = dom.getAttribute('gitId'),
@@ -115,7 +149,7 @@ function(EventEmitter, u, GitEvent){
 					handlers,
 					createdEvent,
 					event;
-				if(eventArea == undefined || eventArea[type] == undefined) return;
+				if(eventArea == undefined || eventArea[type] == undefined || eventArea[type].length == 0) return;
 					
 				handlers = eventArea[type];
 
@@ -137,7 +171,7 @@ function(EventEmitter, u, GitEvent){
 				  	}
 				  	event = new GitEvent(createdEvent);
 				  	event.data = data;
-				  	
+
 				}
 
 
@@ -147,27 +181,35 @@ function(EventEmitter, u, GitEvent){
 				});
 			},
 
-			_packGitEvent: function(event){
-					
-				return {
-					srcEvent: event,
-					target: event.target || event.srcElement,
-					type: event.type,
-					keyCode: event.keyCode || event.which,
-					pageX: event.pageX || event.clientX + document.documentElement.scrollLeft,
-					pageY: event.pageY || event.clientY + document.documentElement.scrollTop,
-					preventDefault: event.preventDefault || function(){event.returnValue = false;},
-					//stopPropagation: event.stopPropagation || function(){event.cancelBubble = true},
-					stopImmediate: function(){this.stopped = true;}
-				}
-			},
 
-			_onDocumentEvent: function(event){
+			/**
+			 * @method	_$_eventDispatcher
+			 * @describe dispatch event
+			 * @param{Event} the event to be dispatched
+			 * return{Void}
+			 */
+			_eventDispatcher: function(event){
 				var
 					//git event object which cross platform
-					gitEvent = new GitEvent(event);
+					gitEvent,
+					gitId,
+					eventArea,
+					target = event.target || event.srcElement,
+					type = event.type;
+				
+				//we do so many judging is in order to reduce the perfomance overhead of the event dispatcher.
+				if(this.__supportedEventMap[event.type]){
 
-        		this._$trigger(gitEvent.target, gitEvent.type, gitEvent);        		
+					gitId = target.getAttribute('gitId');
+					eventArea = this.__eventMap[gitId];
+					
+					if(eventArea && eventArea[type] && eventArea[type].length){
+						gitEvent = new GitEvent(event);
+						this._$trigger(target, type, gitEvent); 
+					}
+						     
+				}
+        					
         	}
 
 		});

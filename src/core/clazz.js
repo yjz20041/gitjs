@@ -7,11 +7,12 @@ define(function(){
 				args = [].slice.call(arguments, 1);
 			return function(){
 				var
+					newArgs = args.slice(0);// copy one
 					i = 0;
 				for(; i < arguments.length; i ++){
-					args.push(arguments[i]);
+					newArgs.push(arguments[i]);
 				}
-				constructor.apply(context, args);
+				constructor.apply(context, newArgs);
 			}
 		}
 	}

@@ -3,9 +3,14 @@ define(function(){
 	if(!Function.prototype._$bind){
 		Function.prototype._$bind = function(context){
 			var
-				constructor = this.constructor,
+				constructor = this,
 				args = [].slice.call(arguments, 1);
 			return function(){
+				var
+					i = 0;
+				for(; i < arguments.length; i ++){
+					args.push(arguments[i]);
+				}
 				constructor.apply(context, args);
 			}
 		}
@@ -19,7 +24,7 @@ define(function(){
 			
 		return function(){
 			this.__super = superFn;//use __super instead of super because ie8- forbid to  use super various
-			fn.apply(this, arguments);
+			return fn.apply(this, arguments);
 		}
 		
 	}

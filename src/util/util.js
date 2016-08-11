@@ -174,11 +174,11 @@ define(function(){
 		        return function(){
 		        	try{
 		        		count ++;
-		        		id = seed + count;
+		        		id =seed.valueOf() + count;
 		        	}catch(e){
 		        		seed = new Date;
 		        		count = 0;
-		        		id = seed + count;
+		        		id =seed.valueOf() + count;
 		        	}
 		            return id;
 		        }

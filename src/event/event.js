@@ -1,13 +1,18 @@
 /**
  * @name 		Event Class
  * @describe 	manage event, all of the events will be delegated to the docuemnt,
- 				and distinguish them according to the unique id assigned by gitjs of the dom 
+ 				and distinguish them according to the unique id  of the dom which is assigned by gitjs 
  * @author 		yangjiezheng
  * @update 		2016-08-10
  *
  */
 
-define(['../core/eventEmitter', '../util/util'], function(EventEmitter, u){
+define([
+	'../core/eventEmitter',
+	'../util/util',
+	'./gitEvent'
+], 
+function(EventEmitter, u, GitEvent){
 	var
 		Event = EventEmitter._$extend({
 			
@@ -27,18 +32,18 @@ define(['../core/eventEmitter', '../util/util'], function(EventEmitter, u){
 					'keypress',
 					'focus',
 					'blur',
-					'mouseover',
-					//'mousemove',
+					/*'mouseover',
+					'mousemove',
 					'mouseout',
 					'mousedown',
 					'mouseup',
 					'resize',
 					'load',
-					'unload'
+					'unload'*/
 				];
 
 				u._$forEach(this.__surpportEventType, function(type){
-			        u._$addEvent(document, type, this._onDocumentEvent);
+			        u._$addEvent(document, type, this._onDocumentEvent._$bind(this));
 			    }, this);
 
 				
@@ -95,41 +100,75 @@ define(['../core/eventEmitter', '../util/util'], function(EventEmitter, u){
 			},
 
 			_$clear: function(dom){
-				this._$off(dom);
+				if(dom != undefined){
+					this._$off(dom);
+				}else{
+					this.__eventMap = {};
+				}
+				
 			},
 
-			_$trigger: function(dom, type, event){
+			_$trigger: function(dom, type, data){
 				var
 					gitId = dom.getAttribute('gitId'),
 					eventArea = this.__eventMap[gitId],
-					handlers;
-
+					handlers,
+					createdEvent,
+					event;
 				if(eventArea == undefined || eventArea[type] == undefined) return;
 					
 				handlers = eventArea[type];
 
+				//init event if event is not existed
+				if(data instanceof GitEvent){
+
+					event = data;
+
+				}else{
+
+					if (document.createEvent) {
+				    	createdEvent = document.createEvent("HTMLEvents");
+				    	createdEvent.initEvent(type, true, true);
+				    	createdEvent.target = dom;
+				  	}else {
+				    	createdEvent = document.createEventObject();
+				    	createdEvent.eventType = type;
+				    	createdEvent.srcElement = dom;
+				  	}
+				  	event = new GitEvent(createdEvent);
+				  	event.data = data;
+				  	
+				}
+
+
 				u._$forEach(handlers, function(handler){
-					if(event.stopImmediatePropagation) return true;
+					if(event.stopped === true) return true;
 					handler.call(dom, event);
 				});
 			},
 
+			_packGitEvent: function(event){
+					
+				return {
+					srcEvent: event,
+					target: event.target || event.srcElement,
+					type: event.type,
+					keyCode: event.keyCode || event.which,
+					pageX: event.pageX || event.clientX + document.documentElement.scrollLeft,
+					pageY: event.pageY || event.clientY + document.documentElement.scrollTop,
+					preventDefault: event.preventDefault || function(){event.returnValue = false;},
+					//stopPropagation: event.stopPropagation || function(){event.cancelBubble = true},
+					stopImmediate: function(){this.stopped = true;}
+				}
+			},
+
 			_onDocumentEvent: function(event){
 				var
-					gitEvent = {
-						srcEvent: event,
-						target: event.target || event.srcElement,
-						type: event.type,
-						keyCode: event.keyCode || event.which,
-						preventDefault: event.preventDefault || function(){event.returnValue = false;},
-						stopPropagation: event.stopPropagation || function(){event.cancelBubble = true},
-						stopImmediatePropagation: function(){this.stopImmediatePropagation = true;this.stopPropagation();}
-					}
+					//git event object which cross platform
+					gitEvent = new GitEvent(event);
 
-        		this._$trigger(gitEvent.target, gitEvent.type, gitEvent);
-        		
+        		this._$trigger(gitEvent.target, gitEvent.type, gitEvent);        		
         	}
-
 
 		});
 

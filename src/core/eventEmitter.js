@@ -12,7 +12,6 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 		pro = EventEmitter.prototype;
 
 	pro.__init = function(options){
-
 		//the map of event
 		this.__events = {};
 

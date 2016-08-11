@@ -11,6 +11,37 @@ define(function(){
 		}
 	}
 
+	function isFunction(f){
+		return {}.toString.call(f).toLowerCase() == '[object function]';
+	}
+
+	function injectSuper(fn, superFn){
+			
+		return function(){
+			this.__super = superFn;//use __super instead of super because ie8- forbid to  use super various
+			fn.apply(this, arguments);
+		}
+		
+	}
+
+	function merge(target, source, superPrototype){
+		var
+			key,
+			val;
+
+		for(key in source){
+			val = source[key];
+			superFn = superPrototype[key];
+			if(source.hasOwnProperty(key) && isFunction(val)){
+				isFunction(superFn) || (superFn = function(){});
+				target[key] = injectSuper(val, superFn);
+			}else{
+				target[key] = val;
+			}
+		}
+	}
+
+
 	return function(obj){
 
 		return extend.call(function(){}, obj);
@@ -25,44 +56,26 @@ define(function(){
 			}
 
 			var
-				proto,
-				key,
-				val,
-				superFn;
+				superProto = this.prototype,
+				proto;
 
 			function noop(){};
-			noop.prototype = this.prototype;
+			noop.prototype = superProto;
 			proto = new noop();
 
+			//extend properties
+			merge(proto, obj, superProto);
 
-			for(key in obj){
-				val = obj[key];
-				superFn = this.prototype[key];
-				if(obj.hasOwnProperty(key) && isFunction(val)){
-					isFunction(superFn) || (superFn = function(){});
-					proto[key] = injectSuper(val, superFn);
-				}else{
-					proto[key] = val;
-				}
-			}
+
 
 			Clazz.prototype = proto;
 			Clazz.prototype.constructor = Clazz;
-			Clazz.prototype._$extend = extend;
 			Clazz._$extend = extend;
-
-			function isFunction(f){
-				return {}.toString.call(f).toLowerCase() == '[object function]';
+			Clazz.prototype._$extend = function(obj){
+				merge(this, obj, superProto)
 			}
 
-			function injectSuper(fn, superFn){
-					
-				return function(){
-					this.__super = superFn;//use __super instead of super because ie8- forbid to  use super various
-					fn.apply(this, arguments);
-				}
-				
-			}
+			
 
 			return Clazz;
 		}			

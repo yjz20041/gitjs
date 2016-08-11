@@ -44,6 +44,18 @@ define(function(){
 			    }
 			},
 
+			_$isBlankObject: function(obj){
+				var
+					key;
+				for(key in obj){
+					if(obj.hasOwnProperty(obj[key])){
+						return true;
+					}
+				}
+
+				return false;
+			},
+
 			_$merge: function(deep){
 				var
 					target,
@@ -152,7 +164,62 @@ define(function(){
 				var
 					args = slice.call(arguments, 1);
 				return slice.apply(context, args);
-			}
+			},
+
+			_$uniqueID: (function(){
+		        var 
+		        	seed = new Date,
+		        	count = 0,
+		        	id;
+		        return function(){
+		        	try{
+		        		count ++;
+		        		id = seed + count;
+		        	}catch(e){
+		        		seed = new Date;
+		        		count = 0;
+		        		id = seed + count;
+		        	}
+		            return id;
+		        }
+		    })(),
+
+		    _$addEvent: function(dom, type, handler){
+		    	if(dom.addEventListener){
+		    		dom.addEventListener(type, handler, false);
+		    	}else{
+		    		dom.attachEvent('on' + type, handler);
+		    	}
+		    },
+
+		    _$removeEvent: function(dom, type, handler){
+		    	if(dom.removeEventListener){
+		    		dom.removeEventListener(type, handler, false);
+		    	}else{
+		    		dom.detachEvent('on' + type, handler);
+		    	}
+		    },
+
+		    _$triggerEvent: function(dom, type){
+		    	var 
+		    		event;
+
+			  	if (document.createEvent) {
+			    	event = document.createEvent("HTMLEvents");
+			    	event.initEvent(type, true, true);
+			  	}else {
+			    	event = document.createEventObject();
+			    	event.eventType = type;
+			  	}
+
+			  	event.eventName = type;
+
+			  	if(document.createEvent){
+			    	dom.dispatchEvent(event);
+			  	}else{
+			    	dom.fireEvent("on" + event.eventType, event);
+			  	}
+		    }
 
 		}
 	return util;

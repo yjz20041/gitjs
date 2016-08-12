@@ -219,7 +219,160 @@ define(function(){
 			  	}else{
 			    	dom.fireEvent("on" + event.eventType, event);
 			  	}
-		    }
+		    },
+
+		    _$under2camel: function(string){
+		    	return string.replace(/\-(\w)/g, function(all, letter){
+                      return letter.toUpperCase();
+                });
+		    },
+
+		    _$getIndex: function(dom,deep){
+                var i = 0;
+                deep = deep || 1;
+                for (var j = 1; j < deep; j ++ ){
+                    dom = dom.parentNode;
+                }                                       
+                while( (dom = dom.previousSibling) != null ){                                             
+                    dom.nodeType == 1 && i++;
+                } 
+                return i;
+            },
+            _$getBrowser: function(){
+                // Useragent RegExp
+                var rwebkit = /(webkit)[ \/]([\w.]+)/,
+                ropera = /(opera)(?:.*version)?[ \/]([\w.]+)/,
+                rmsie = /(msie) ([\w.]+)/,
+                rmozilla = /(mozilla)(?:.*? rv:([\w.]+))?/;
+                function uaMatch( ua ) {
+                    ua = ua.toLowerCase();
+
+                    var match = rwebkit.exec( ua ) ||
+                            ropera.exec( ua ) ||
+                            rmsie.exec( ua ) ||
+                            ua.indexOf("compatible") < 0 && rmozilla.exec( ua ) ||
+                            [];
+
+                    return { browser: match[1] || "", version: match[2] || "0" };
+                };
+                
+                var userAgent = $window.navigator.userAgent;
+                return uaMatch(userAgent);
+            },
+            _$isIE8: function(){
+                var browser = this.getBrowser();
+                if (browser.browser == 'msie' && browser.version == '8.0') return true;
+                else return false;
+            },
+            _$GetCurrentStyle: function(obj, prop){
+
+            	var
+            		borderFragment,
+            		meta = ['-width', '-style', '-color'],
+            		i,
+            		tempProp,
+            		tempRet = '';
+
+                if (document.defaultView && document.defaultView.getComputedStyle){
+                    var propprop = prop.replace (/([A-Z])/g, "-$1");
+                    propprop = prop.toLowerCase ();
+                    return document.defaultView.getComputedStyle(obj,null)[propprop];
+                }else if (obj.currentStyle){//IE
+
+                	borderFragment = /^border(-\w+)?$/.exec(prop);
+                	if(borderFragment && borderFragment[0]){
+                		for(i = 0; i < meta.length; i ++){
+                			tempProp = borderFragment[1] ? prop + meta[i] : prop + '-left' + meta[i];
+                			tempProp = this._$under2camel(tempProp);
+                			tempProp = obj.currentStyle[tempProp];
+                			tempRet += tempProp + ' ';
+
+                			if(i == 1 && tempProp == 'none'){
+                				return 'none';
+                			}
+                		}
+
+                		return tempRet;
+                		
+                	}else{
+                		prop = this._$under2camel(prop);
+                		return obj.currentStyle[prop];
+                	}
+                    
+                    
+                }
+                return null;
+            },
+            _$getElementAbsPos: function(dom){  
+                var t = dom.offsetTop;  
+                var l = dom.offsetLeft;  
+                while(dom = dom.offsetParent){  
+                    t += dom.offsetTop;  
+                    l += dom.offsetLeft;  
+                }                     
+                return {left:l,top:t};  
+            },
+            _$removeInlineStyle: function(dom,arr){
+                var
+                      i,
+                      j,
+                      k,
+                      direction = ['-left','-top','-right','-bottom'],
+                      meta = ['-width', '-color', '-style'],
+                      fragment,
+                      temp;
+                if (typeof arr == 'string') arr = [arr];
+
+                for (i = 0; i < arr.length; i ++){
+                        if (dom.style.removeProperty){
+                            dom.style.removeProperty(arr[i]);
+                        }else{
+                        	fragment = /^border(-\w+)?$/.exec(arr[i]);
+
+                            //border should be remove by this special method in ie9-
+                            if(fragment && fragment[0]){
+
+                            	if(fragment[1]){
+                            		for(; j < meta.length; j ++ ){
+                            			temp = arr[i] + meta[j];
+                            			temp = this._$under2camel(temp);
+	                                	dom.style.removeAttribute(temp);
+                            		}
+                            	}else{
+                            		for(k = 0; k < direction.length; k ++ ){
+                            			for(j = 0; j < meta.length; j ++ ){
+	                            			temp = arr[i] + direction[k] + meta[j];
+	                            			temp = this._$under2camel(temp);
+		                                	dom.style.removeAttribute(temp);
+	                            		}
+                            		}
+                            	}
+
+                            }else{
+                                arr[i] = arr[i].replace(/\-(\w)/g, function(all, letter){
+                                        return letter.toUpperCase();
+                                });
+                                dom.style.removeAttribute(arr[i]);
+                            }
+                      }
+                }
+                          
+            }, 
+            _$addCookie: function (key,value,expires){//add cookie with expires
+                   
+                $cookieStore.put(key,value);
+                expires || (expires = 0.5);
+                value = angular.toJson(value);
+                var str = key + "=" + value;
+                if(expires > 0){
+                    var date = new Date();
+                    var ms = expires*3600*1000;
+                    date.setTime(date.getTime() + ms);
+                    str += "; expires=" + date.toGMTString();
+                }
+                document.cookie = str;
+              
+            }
 
 		}
 	return util;

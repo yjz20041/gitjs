@@ -40,9 +40,47 @@ function(EventEmitter, u, Selector){
 
 
 			//css
-			_$css: function(key, value){
+			_$css: function(cssName, cssValue){
+
+				var
+					ret;
+				
+				u._$forEach(this._$get(), function(dom){
+
+					if(u._$isObject(cssName)){
+						u._$forEach(cssName, function(value, key){
+							this._setCss(dom, key, value)
+						}, this);
+					}else if(cssValue != undefined){
+						this._setCss(dom, cssName, cssValue)
+					}else{
+						ret = u._$GetCurrentStyle(dom, cssName);
+						return true;
+					}
+
+				}, this);
+
+				if(cssValue == undefined){
+					return ret;
+				}
+				
+				return this;	
+							
+			},
+
+			_setCss: function(dom, cssName, cssValue){
+				if(cssValue != undefined){
+					dom.style[cssName] = cssValue;
+				}else{
+					u._$removeInlineStyle(dom, [cssName]);
+				}
+					
+			},
+
+			_getCss: function(key){
 
 			},
+
 			_$position: function(){
 
 			},

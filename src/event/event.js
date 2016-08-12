@@ -3,7 +3,7 @@
  * @describe 	manage event, all of the events will be delegated to the docuemnt,
  				and distinguish them according to the unique id  of the dom which is assigned by gitjs 
  * @author 		yangjiezheng
- * @update 		2016-08-10
+ * @update 		2016-08-11
  *
  */
 
@@ -66,7 +66,7 @@ function(EventEmitter, u, GitEvent){
 				eventArea[type] = eventArea[type] || [];
 				eventArea[type].push(handler);
 
-				//adding the supported event dynamicly to reduce the pression of the event dispatcher 
+				//adding the supported event dynamicly to reduce the perfomance overhead of the event dispatcher 
 				if(!this.__supportedEventMap[type]){
 					this.__supportedEventMap[type] = true;
 					u._$addEvent(document, type, this._eventDispatcher._$bind(this));

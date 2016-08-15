@@ -372,6 +372,20 @@ define(function(){
                 }
                 document.cookie = str;
               
+            },
+            _$getDomDescends: function(dom){
+            	var
+            		ret = [],
+            		childNodes = dom.childNodes;
+            	this._$forEach(childNodes, function(node){
+            		if(node.nodeType == 1){
+            			ret.push(node);
+            			[].push.apply(ret, this._$getDomDescends(node));
+            		}
+
+            	}, this);
+            	return ret;
+
             }
 
 		}

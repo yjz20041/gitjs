@@ -37,8 +37,13 @@ function(EventEmitter, u){
 					this.__context = this._$find(this.__context, document)._$get();
 				}
 
-				this.__dom = this._$find(this.__selectors, this.__context) || [];
+				if(u._$isDom(this.__selectors)){
+					this.__dom = this.__selectors;
+				}else{
 
+					this.__dom = this._$find(this.__selectors, this.__context) || [];
+				}
+					
 
 
 				//temp dom container
@@ -75,7 +80,6 @@ function(EventEmitter, u){
 			 * @return{Array} the result is store in private property _finding
 			 */
 			_querySelectorAll: function(selectors, context){
-
 				var					
 					parts = selectors.match(regSplit),
 					part,
@@ -94,7 +98,17 @@ function(EventEmitter, u){
 					i = parts.length - 1,
 					temp;
 
-				this._finding = context instanceof Array ? context : context.getElementsByTagName('*');
+				this._finding = [];
+
+				if(context instanceof Array){
+					u._$forEach(context, function(node){
+						this._finding = this._finding.concat(u._$getDomDescends(node));
+					}, this);
+				}else{
+					this._finding = context.getElementsByTagName('*');
+				}
+
+				
 
 				for(; i >= 0; i --){
 					

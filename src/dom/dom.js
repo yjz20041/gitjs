@@ -9,13 +9,15 @@
 define([
 	'../core/eventEmitter',
 	'../util/util',
-	'./selector'
+	'./selector',
+	'../event/event'
 ],
 
-function(EventEmitter, u, Selector){
+function(EventEmitter, u, Selector, Event){
 
 	var
-		cache = {},
+		eventManager = new Event(),
+		propCache = {},
 		Dom = EventEmitter._$extend({
 			
 			__init: function(options){
@@ -25,6 +27,7 @@ function(EventEmitter, u, Selector){
 				this.__selectors = options.selectors;
 				this.__context = options.context || document;
 
+				
 				this.__domSelector = new Selector({
 					selectors: this.__selectors,
 					context: this.__context
@@ -215,67 +218,266 @@ function(EventEmitter, u, Selector){
 			},
 
 
-			//attr
+			/**
+			 * @method	_$attr
+			 * @describe set or get attribute of dom
+			 * @param{String} attribute name
+			 * @param{String optional} attribute value 
+			 * @return{String/this}
+			 */
 			_$attr: function(key, value){
-
+				var
+					doms = this._$get();
+				if(value == undefined){
+					return doms[0].getAttribute(key);
+				}else{
+					u._$forEach(doms, function(dom){
+						dom.setAttribute(key, value);
+					});
+				}
+				return this;
+					
 			},
 
+			/**
+			 * @method	_$removeAttr
+			 * @describe remove dom attribute
+			 * @param{String} attribute name
+			 * @return{String/this}
+			 */
 			_$removeAttr: function(key){
-
+				u._$forEach(this._$get(), function(dom){
+					dom.removeAttribute(key);
+				});
+				return this;
 			},
 
 
-			//prop
+			/**
+			 * @method	_$propCache
+			 * @describe set or get prop of dom by cache
+			 * @param{String} prop name
+			 * @param{String optional} prop value 
+			 * @return{Any/this}
+			 */
+			_$propCache: function(key, value){
+				var
+					doms = this._$get(),
+					gitId;
+			
+				if(value == undefined){
+					gitId = doms[0].getAttribute('gitId');
+					return propCache[gitId] && propCache[gitId][key];
+				}else{
+					u._$forEach(doms, function(dom){
+						gitId = dom.getAttribute('gitId');
+						if(gitId == undefined){
+							gitId = u._$uniqueID();
+							dom.setAttribute('gitId', gitId);
+						}
+						if(!propCache[gitId]){
+							propCache[gitId] = {};
+						}
+						propCache[gitId][key] = value;
+					});
+				}
+				return this;
+						
+			},
+
+
+			/**
+			 * @method	_$removePropCache
+			 * @describe remove prop of dom from prop cache
+			 * @param{String} prop name
+			 * @return{this}
+			 */
+			_$removePropCache: function(key){
+				u._$forEach(this._$get(), function(dom){
+					gitId = dom.getAttribute('gitId');
+					
+					if(propCache[gitId]){
+						delete propCache[gitId][key];
+					}
+				});
+				return this;
+			},
+
+			/**
+			 * @method	_$prop
+			 * @describe set or get prop of dom by dom
+			 * @param{String} prop name
+			 * @param{String optional} prop value 
+			 * @return{Any/this}
+			 */
 			_$prop: function(key, value){
-
+				var
+					doms = this._$get();
+			
+				if(value == undefined){
+					return doms[0][key]
+				}else{
+					u._$forEach(doms, function(dom){						
+						dom[key] = value;
+					});
+				}
+				return this;		
 			},
 
+			/**
+			 * @method	_$removeProp
+			 * @describe remove prop of dom from dom
+			 * @param{String} prop name
+			 * @return{this}
+			 */
 			_$removeProp: function(key){
+				u._$forEach(this._$get(), function(dom){
+					delete dom[key];
+				});
 
+				return this;
 			},
 
 
-			//event
+
+
+			/**
+			 * @method	_$on
+			 * @describe bind event handler to dom
+			 * @param{String} event type
+			 * @param{Function} event handler
+			 * @return{this}
+			 */
 			_$on: function(type, handler){
+				u._$forEach(this._$get(), function(dom){
+					eventManager._$on(dom, type, handler);
+				});
 
+				return this;
 			},
 
+			/**
+			 * @method	_$off
+			 * @describe remove event handler from dom
+			 * @param{String} event type
+			 * @param{Function} event handler
+			 * @return{this}
+			 */
 			_$off: function(type, handler){
+				u._$forEach(this._$get(), function(dom){
+					eventManager._$off(dom, type, handler);
+				});
 
+				return this;
 			},
 
+			/**
+			 * @method	_$trigger
+			 * @describe trigger event
+			 * @param{String} event type
+			 * @param{Object} data passed into the event object
+			 * @return{this}
+			 */
 			_$trigger: function(type, data){
+				u._$forEach(this._$get(), function(dom){
+					eventManager._$trigger(dom, type, data);
+				});
 
+				return this;
 			},
 
 
-			//class
+			/**
+			 * @method	_$addClass
+			 * @describe add class name to dom
+			 * @param{String} class name
+			 * @return{this}
+			 */
 			_$addClass: function(className){
+				var
+					regClassName = new RegExp('\\s*' + className + '\\s*');
+				u._$forEach(this._$get(), function(dom){
+					if(!regClassName.test(dom.className)){
+						dom.className = dom.className + ' ' + className;
+					}
+				});
 
+				return this;
 			},
 
+			/**
+			 * @method	_$removeClass
+			 * @describe remove class name from dom
+			 * @param{String} class name
+			 * @return{this}
+			 */
 			_$removeClass: function(className){
+				var
+					regClassName = new RegExp('\\s*' + className + '\\s*');
+				u._$forEach(this._$get(), function(dom){
+					dom.className = dom.className.replace(regClassName, ' ');
+				});
 
+				return this;
 			},
 
+
+			/**
+			 * @method	_$hasClass
+			 * @describe if dom has the specified class name
+			 * @param{String} class name
+			 * @return{boolean}
+			 */
 			_$hasClass: function(className){
-
+				var
+					regClassName = new RegExp('\\s*' + className + '\\s*'),
+					representive = this._$get(0);
+				return regClassName.test(representive.className);
 			},
 
 
-			//select
+			/**
+			 * @method	_$find
+			 * @describe find descends
+			 * @param{String} selector
+			 * @return{DomObject}
+			 */
 			_$find: function(selector){
-
+				return new Dom({
+					selectors: selector,
+					context: this._$get()
+				});
 			},
+
+
+			/**
+			 * @method	_$eq
+			 * @describe return the specified index dom
+			 * @param{Int} index
+			 * @return{Dom}
+			 */
 			_$eq: function(index){
-
+				return this._$get(index);
 			},
+
+			/**
+			 * @method	_$first
+			 * @describe return the first index dom
+			 * @return{Dom}
+			 */
 			_$first: function(){
-
+				return this._$get(0);
 			},
+
+			/**
+			 * @method	_$last
+			 * @describe return the last index dom
+			 * @return{Dom}
+			 */
 			_$last: function(){
-
+				
 			},
+
 			_$prev: function(){
 
 			},

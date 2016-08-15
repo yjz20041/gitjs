@@ -2,7 +2,7 @@
  * @name 		Dom Class
  * @describe 	operate dom like jquery
  * @author 		yangjiezheng
- * @update 		2016-08-11
+ * @update 		2016-08-15
  *
  */
 
@@ -39,7 +39,13 @@ function(EventEmitter, u, Selector){
 			},
 
 
-			//css
+			/**
+			 * @method	_$css
+			 * @describe get or set css
+			 * @param{String/Object} css name of the object of css map
+			 * @param{String} css value
+			 * @return{this}
+			 */
 			_$css: function(cssName, cssValue){
 
 				var
@@ -81,35 +87,131 @@ function(EventEmitter, u, Selector){
 
 			},
 
+			
+			/**
+			 * @method	_$position
+			 * @describe get position relative parent node
+			 * @return{Object}
+			 */
 			_$position: function(){
+				var
+					representive = this._$get(0);
+				return {
+					left: representive.offsetLeft,
+					top: representive.offsetTop
+				}
 
 			},
+			
+
+			/**
+			 * @method	_$offset
+			 * @describe get offset relative client
+			 * @return{Object}
+			 */
 			_$offset: function(){
-
+				var
+					representive = this._$get(0),
+					rect = representive.getBoundingClientRect();
+				return {
+					left: rect.left,
+					top: rect.top
+				}
 			},
+
+			/**
+			 * @method	_$width
+			 * @describe get width
+			 * @return{Int}
+			 */
 			_$width: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.offsetWidth;
 			},
+
+			/**
+			 * @method	_$height
+			 * @describe get height
+			 * @return{Int}
+			 */
 			_$height: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.offsetHeight;
 			},
+
+			_bodyScrollTop: function(){
+				return document.body.scrollTop || document.documentElement.scrollTop;
+			},
+			_bodyScrollLeft: function(){
+				return document.body.scrollLeft || document.documentElement.scrollLeft;
+			},
+
+			/**
+			 * @method	_$scrollTop
+			 * @describe get scroll top
+			 * @return{Int}
+			 */
 			_$scrollTop: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.scrollTop;
 			},
+
+			/**
+			 * @method	_$scrollLeft
+			 * @describe get scroll left
+			 * @return{Int}
+			 */
 			_$scrollLeft: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.scrollLeft;
 			},
+
+			/**
+			 * @method	_$innerWidth
+			 * @describe get inner width excluding border
+			 * @return{Int}
+			 */
 			_$innerWidth: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.clientWidth;
 			},
+
+			/**
+			 * @method	_$innerHeight
+			 * @describe get inner height excluding border
+			 * @return{Int}
+			 */
 			_$innerHeight: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.clientHeight;
 			},
+
+			/**
+			 * @method	_$outerWidth
+			 * @describe get outer width including padding and border
+			 * @return{Int}
+			 */
 			_$outerWidth: function(){
-
+				var
+					representive = this._$get(0);
+				return representive.offsetWidth;
 			},
-			_$outerHeight: function(){
 
+			/**
+			 * @method	_$outerHeight
+			 * @describe get outer height including padding and border
+			 * @return{Int}
+			 */
+			_$outerHeight: function(){
+				var
+					representive = this._$get(0);
+				return representive.offsetHeight;
 			},
 
 

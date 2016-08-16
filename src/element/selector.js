@@ -1,6 +1,6 @@
 /**
  * @name 		Selector Class
- * @describe 	select dom from document tree or virtual dom tree
+ * @describe 	select element from document tree or virtual element tree
  * @author 		yangjiezheng
  * @update 		2016-08-12
  *
@@ -14,7 +14,7 @@ define([
 
 function(EventEmitter, u){
 	var
-		regSplit = /(\w+)?(#|\.)?\w+(\[\w+=?(\w+)?\])?(:\w+)?(\s*>\s*)?/g,
+		regSplit = /([\w|\*]+)?(#|\.)?[\w|\*]+(\[\w+=?(\w+)?\])?(:\w+)?(\s*>\s*)?/g,
 
 		// 1 tag name
 		// 2 flag; 
@@ -23,7 +23,7 @@ function(EventEmitter, u){
 		// 6 attr value
 		// 8 pseudo
 		// 9 parent
-		regFragment = /^(\w+)?(#|\.)?(\w+)?(\[(\w+)=?(\w+)?\])?(:(\w+))?(\s*>\s*)?$/,
+		regFragment = /^([\w|\*]+)?(#|\.)?([\w|\*]+)?(\[(\w+)=?(\w+)?\])?(:(\w+))?(\s*>\s*)?$/,
 
 		Selector = EventEmitter._$extend({
 			
@@ -37,23 +37,21 @@ function(EventEmitter, u){
 					this.__context = this._$find(this.__context, document)._$get();
 				}
 
-				if(u._$isDom(this.__selectors)){
-					this.__dom = this.__selectors;
-				}else{
 
-					this.__dom = this._$find(this.__selectors, this.__context) || [];
-				}
+
+				this.__elements = this._$find(this.__selectors, this.__context) || [];
+				
 					
 
 
-				//temp dom container
+				//temp element container
 				this._finding = [];
 
 			},
 
 			/**
 			 * @method	_$find
-			 * @describe find dom according to the selectors and context
+			 * @describe find element according to the selectors and context
 			 * if the browser support querySelectorAll method, we will call it directly. 
 			 * if not, call the private method _querySelectorAll.
 			 * @param{String} selectors
@@ -101,14 +99,13 @@ function(EventEmitter, u){
 				this._finding = [];
 
 				if(context instanceof Array){
-					u._$forEach(context, function(node){
-						this._finding = this._finding.concat(u._$getDomDescends(node));
-					}, this);
+					
+					this._finding = context;
+
 				}else{
+					this._finding.push(context);
 					this._finding = context.getElementsByTagName('*');
 				}
-
-				
 
 				for(; i >= 0; i --){
 					
@@ -123,10 +120,10 @@ function(EventEmitter, u){
 					isParent = fragment[9];
 
 					temp = [];
-					u._$forEach(this._finding, function(dom){
+					u._$forEach(this._finding, function(element){
 
-						if(this._judge(dom, tagName, flag, tagValue, attrName, attrValue, pseudo, isParent, i == parts.length - 1)){
-							temp.push(dom);
+						if(this._judge(element, tagName, flag, tagValue, attrName, attrValue, pseudo, isParent, i == parts.length - 1)){
+							temp.push(element);
 						}
 						
 					}, this);
@@ -143,42 +140,44 @@ function(EventEmitter, u){
 
 			/**
 			 * @method	_judge
-			 * @describe judge a dom if conform the specified selector
-			 * @param{Dom} the dom to be judged
+			 * @describe judge a element if conform the specified selector
+			 * @param{Dom} the element to be judged
 			 * @return{Void}
 			 */
-			_judge: function(dom, tagName, flag, tagValue, attrName, attrValue, pseudo, isParent, self){
+			_judge: function(element, tagName, flag, tagValue, attrName, attrValue, pseudo, isParent, self){
 				var
 					ret;
 
 
 				if(self === true){
 
-					dom.findingStart = dom;
+					element.findingStart = element;
 					
-					return this._judgeFlag(dom.findingStart, tagName, flag, tagValue) && this._judgeAttr(dom.findingStart, attrName, attrValue);
+					return this._judgeFlag(element.findingStart, tagName, flag, tagValue) && this._judgeAttr(element.findingStart, attrName, attrValue);
 				
 				}else if(isParent){
-					dom.findingStart = dom.findingStart.parentNode;
 
-
+					element.findingStart = element.findingStart.parentNode;
 					
-					return this._judgeFlag(dom.findingStart, tagName, flag, tagValue) && this._judgeAttr(dom.findingStart, attrName, attrValue);
+					return this._judgeFlag(element.findingStart, tagName, flag, tagValue) && this._judgeAttr(element.findingStart, attrName, attrValue);
 				
 				}else{
 					
 					ret = false;
 					
 					
-					while(dom.findingStart.parentNode){
+					while(element.findingStart.parentNode){
 						
-						dom.findingStart = dom.findingStart.parentNode;
-					
-						//stop judging if parentnode is __context
-						if(dom.findingStart == this.__context){
+						element.findingStart = element.findingStart.parentNode;
+						
+						//stop judging if parentnode is  document
+						if(element.findingStart == document){
 							break;
 						}
-						if(this._judgeFlag(dom.findingStart, tagName, flag, tagValue) && this._judgeAttr(dom.findingStart, attrName, attrValue)){
+
+						
+
+						if(this._judgeFlag(element.findingStart, tagName, flag, tagValue) && this._judgeAttr(element.findingStart, attrName, attrValue)){
 							ret = true;
 							break;
 						}
@@ -196,46 +195,46 @@ function(EventEmitter, u){
 			 * @describe filter doms with the 'flag' and the constructor is like 'h1.head'. In this case, the 'h1' is the tagName,
 			 * '.' is the flag and 'head' is the tagValue. In another case like '.head' which the tagName is undefined while the 
 			 * the flag is '.' and the tagValue is 'head'.
-			 * @param{Dom} dom judged
+			 * @param{Dom} element judged
 			 * @param{tagName} html tag or undefined
 			 * @param{flag} ./#/undefined
 			 * @param{tagValue} className Id or html tag
-			 * @return{Boolean} if the dom is passed the flag judge
+			 * @return{Boolean} if the element is passed the flag judge
 			 */
-			_judgeFlag: function(dom, tagName, flag, tagValue){
+			_judgeFlag: function(element, tagName, flag, tagValue){
 
 				var
-					domTag =  dom.tagName.toLowerCase();
+					domTag =  element.tagName.toLowerCase();
 
 
 
-				if(tagName && domTag != tagName){
+				if(tagName && domTag != tagName && tagName != '*'){
 					return false;
 				}
 
 
-				return (flag == '.' && (new RegExp('^\\s*' + tagValue + '\\s*$')).test(dom.className)
-					|| flag == '#' && dom.id == tagValue
-					|| !flag && domTag == tagName);
+				return (flag == '.' && (new RegExp('^\\s*' + tagValue + '\\s*$')).test(element.className)
+					|| flag == '#' && element.id == tagValue
+					|| !flag && (domTag == tagName) || tagName == '*');
 			},
 
 			/**
 			 * @method	_judgeAttr
-			 * @describe filter doms with the attribute of the dom
-			 * @param{Dom} dom judged
+			 * @describe filter doms with the attribute of the element
+			 * @param{Dom} element judged
 			 * @param{String} attribute name
 			 * @param{String} attribute value
-			 * @return{Boolean} if the dom is passed the flag judge
+			 * @return{Boolean} if the element is passed the flag judge
 			 */
-			_judgeAttr: function(dom, attrName, attrValue){
+			_judgeAttr: function(element, attrName, attrValue){
 
-				return attrName && !attrValue && dom.getAttribute(attrName) != undefined 
-					|| attrName && attrValue && attrValue == dom.getAttribute(attrName)
+				return attrName && !attrValue && element.getAttribute(attrName) != undefined 
+					|| attrName && attrValue && attrValue == element.getAttribute(attrName)
 					|| !attrName && !attrValue;
 			},
 
 
-			_judgePseudo: function(dom, pseduo){
+			_judgePseudo: function(element, pseduo){
 				//waitting... : )
 			},
 
@@ -260,12 +259,12 @@ function(EventEmitter, u){
 
 			/**
 			 * @method	_$getDom
-			 * @describe return the dom found
+			 * @describe return the element found
 			 * @return{Array} 
 			 */
-			_$getDom: function(){
+			_$get: function(){
 
-				return this.__dom;
+				return this.__elements;
 			}
 
 		});

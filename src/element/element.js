@@ -21,15 +21,21 @@ function(EventEmitter, u, Selector, Event){
 		Element = EventEmitter._$extend({
 			
 			__init: function(options){
-				var
-					tempElement;
-
+				
 				this.__super();
 								
 
 				this.__selectors = options.selectors;
 				this.__context = options.context || document;
 
+				this.__intElements();
+
+				
+					
+				
+			},
+
+			__intElements: function(){
 				// html
 				if(u._$isHtml(this.__selectors)){
 					tempElement = document.createElement('div');
@@ -50,8 +56,6 @@ function(EventEmitter, u, Selector, Event){
 				else if(u._$isArray(this.__selectors)){
 					this._$setElements(this.__selectors);
 				}
-					
-				
 			},
 
 			_$get: function(index){

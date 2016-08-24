@@ -6,6 +6,10 @@ define(function(){
 		slice = _r.slice,
 		concat = _r.concat,
 		util = {
+			_$error: function(message){
+				throw (new Error(message));
+			},
+
 			_$type: function(o){
 				var
 					r = /^\[object\s(.*)\]$/;
@@ -63,6 +67,7 @@ define(function(){
 			_$isHtml: function(str){
 				return /^<.+>.*<\/.+>$/.test(str);
 			},
+
 
 			_$merge: function(deep){
 				var
@@ -166,6 +171,10 @@ define(function(){
 
 			    });
 			    return result;
+			},
+
+			_$eval: function(expression){
+				eval(expression);
 			},
 
 			_$slice: function(context){

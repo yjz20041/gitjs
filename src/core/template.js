@@ -3,7 +3,7 @@ define([
 	'../util/util'
 ],function(EventEmitter, u){
 	var
-		Service = EventEmitter._$extend({
+		Template = EventEmitter._$extend({
 			
 			__init: function(){
 
@@ -16,5 +16,5 @@ define([
 
 		});
 
-	return Service;
+	return Template;
 })

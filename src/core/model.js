@@ -12,43 +12,41 @@ define([
 ], function(EventEmitter, u){
 	var
 		Model = EventEmitter._$extend({
-			
+			__children: [],
+
 			__init: function(options){
 				this.__super();
 				
 				this.__children = [];
 
-				this.__model = {};
 			},
 
 			_$set: function(key, value){
 				var
-					map = this.__model[key] = this.__model[key] || {};
-				map.oldValue = map.currentValue;
-				map.currentValue = value;
+					map = this[key] = this[key] || {};
+				map.isData = true;
+				map.oldValue = map.newValue;
+				map.newValue = value;
 
-				if(map.oldValue != map.currentValue){
+				if(map.oldValue != map.newValue){
 					map.dirty = true;
 				}
 			},
 
 			_$get: function(key){
 				var
-					map = this.__model[key] || {};
-				return map.currentValue;
+					map = this[key] || {};
+				return map.newValue;
 			},
 
-			_$appendChild: function(model){
-				if(model instanceof Model){
-					this.__children = this.__children || [];
-					this.__children.push(model);
-					model._$setParent(this);
-				}
-					
-			},
 
 			_$children: function(){
 				return this.__children;
+			},
+
+			_$appendChild: function(model){
+				this.__children.push(model);
+				model._$setParent(this);
 			},
 
 			_$removeChild: function(model){
@@ -71,9 +69,9 @@ define([
 
 			//add listener to key
 			_$on: function(key, handler){
-				if(this.__model[key] == undefined){
+				/*if(this[key] == undefined){
 					this._$set(key, undefined);
-				}
+				}*/
 				this._$addEvent(key, handler);
 			},
 
@@ -81,19 +79,40 @@ define([
 				this._$removeEvent(key, handler)
 			},
 
-			_$digest: function(){
+			_$digest: function(key){
+				var
+					context = {};
+				if(key){
+					context[key] = this[key];
+				}else{
+					context = this;
+				}
 
-				u._$forEach(this.__model, function(map, key){
+				u._$forEach(context, function(map, key){
 					var
-						curValue,
+						newValue,
 						oldValue,
 						i = 0;
+					
+					if(map.isData !== true) return;
+
+
 					while(map.dirty != false){
-						curValue = map.currentValue;
+						newValue = map.newValue;
 						oldValue = map.oldValue;
-						map.oldValue = curValue;
-						map.dirty = false;
-						this._$dispatchEvent(key, curValue, oldValue, this);						
+
+						u._$forEach(this._$children(), function(childModel){
+							childModel._$digest(key);
+						});
+
+						map.oldValue = newValue;
+						
+						this._$dispatchEvent(key, newValue, oldValue, this);
+
+						if(map.oldValue == map.newValue){
+							map.dirty = false;
+						}
+
 						i ++;
 						if(i > 10){
 							u._$error('too much food, indigestion!');
@@ -103,18 +122,34 @@ define([
 
 				}, this);
 
+				if(key == undefined){
+					u._$forEach(this._$children(), function(childModel){
+						childModel._$digest();
+					});
+				}
+					
 
-				u._$forEach(this._$children(), function(childModel){
-					childModel._$digest();
-				});
-
-				this.__primitiveDigest = false;
 			},
 
 			
 
 			_$apply: function(expression){
 				/*waitting... :) */
+			},
+
+			_$new: function(){
+				var
+					Constructor = function(){
+						this.__children = [];
+					},
+					childModel;
+				Constructor.prototype = this;
+				childModel = new Constructor();
+
+				this._$appendChild(childModel);
+
+				return childModel;
+
 			}
 
 		});

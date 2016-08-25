@@ -1,44 +1,22 @@
 define([
+	'./core/eventEmitter',
 	'./core/controller',
 	'./core/directive',
 	'./core/filter',
-	'./core/model'
-], function(Controller, Directive, Filter, Model){
+	'./core/model',
+	'./core/compiler'
+], function(EventEmitter, Controller, Directive, Filter, Model, Compiler){
 	var
 		Git = EventEmitter._$extend({
 			
 			__init: function(){
 
 				this.__super();
-
-				//controller manager
-				this.__controllerManager = {
-
-				};
-
-				//direcitve manager
-				this.__direcitveManager = {
-
-				};
-
-				//filter manager
-				this.__FilterManager = {
-
-				};
 				
-			},
+			}			
 
-			_$registerController = function(name, fn){
-				this.__controllerManager[name] = fn;
-			},
+		}),
+		instance = new Git();
 
-			_$registerDirecitve = function(name, fn){
-				this.__direcitveManager[name] = fn;
-			}
-
-			
-
-		});
-
-	return Git;
+	return instance;
 })

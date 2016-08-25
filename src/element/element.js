@@ -28,14 +28,14 @@ function(EventEmitter, u, Selector, Event){
 				this.__selectors = options.selectors;
 				this.__context = options.context || document;
 
-				this.__intElements();
+				this.__initElements();
 
 				
 					
 				
 			},
 
-			__intElements: function(){
+			__initElements: function(){
 				// html
 				if(u._$isHtml(this.__selectors)){
 					tempElement = document.createElement('div');
@@ -55,6 +55,10 @@ function(EventEmitter, u, Selector, Event){
 				// array
 				else if(u._$isArray(this.__selectors)){
 					this._$setElements(this.__selectors);
+				}
+				//element
+				else if(u._$isElement(this.__selectors)){
+					this._$setElements([this.__selectors]);
 				}
 			},
 

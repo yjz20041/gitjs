@@ -15,19 +15,19 @@ define([
 				
 			},
 
-			_$setModel = function(model){
+			_$setModel: function(model){
 				this.__model = model;
 			},
 
-			_$getModel = function(){
+			_$getModel: function(){
 				return this.__model;
 			},
 
-			_$setView = function(domTree){
+			_$setView: function(domTree){
 				this.__view = domTree;
 			},
 
-			_$getView = function(){
+			_$getView: function(){
 				return this.__view;
 			}
 

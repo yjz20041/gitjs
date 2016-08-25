@@ -80,6 +80,8 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 		}, this);
 	}
 
+	
+
 
 	return EventEmitter;
 

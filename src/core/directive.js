@@ -13,32 +13,25 @@ define([
 				//element
 				this.__element = options.element;
 
-				//parent model
-				this.__parentModel = options.parentModel;
-
-				if(this.__model === true){
-
-					this.__model = this.__parentModel ? this.__parentModel._$new() : new Model();
-				}				
+				//model
+				this.__model = options.model;				
 			},
 
-			_$setModel = function(model){
+			_$setModel: function(model){
 				this.__model = model;
 			},
 
-			_$getModel = function(){
+			_$getModel: function(){
 				return this.__model;
 			},
 
-			_$compile: function(element, model){
+			_$compile: function(element){
 
 			},
 
 			_$link: function(element, model){
 
 			}
-
-			
 
 		});
 

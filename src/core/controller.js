@@ -1,17 +1,21 @@
 define([
-	'./eventEmitter',
+	'./directive',
 	'../util/util'
-],function(EventEmitter, u){
+],function(Directive, u){
 	var
-		Controller = EventEmitter._$extend({
+		Controller = Directive._$extend({
 			
-			__init: function(){
+			__init: function(fn){
 
 				this.__super();
+
+
 
 				this.__model = {};
 
 				this.__view = null;
+
+				this.__controller = fn;
 				
 			},
 
@@ -29,9 +33,12 @@ define([
 
 			_$getView: function(){
 				return this.__view;
-			}
+			},
 
-			
+			_$link: function(element, attr, model){
+				this.__controller.apply(this, arguments);
+				model._$digest();
+			}			
 
 		});
 

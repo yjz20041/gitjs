@@ -17,7 +17,7 @@ define(function(){
 			},
 
 			_$isObject: function(o){
-				return this._$type(o) == 'object' || (typeof o === 'object' && typeof o.nodeType === 'number' &&  typeof o.nodeName === 'string') || o == window;
+				return this._$type(o) == 'object' || (o && typeof o.nodeType === 'number' &&  typeof o.nodeName === 'string') || o == window;
 			},
 
 			_$isArray: function(a){
@@ -110,6 +110,14 @@ define(function(){
 				}else if(util._$isObject(obj)){
 					for(key in obj){
 						if(callback.call(context || obj, obj[key], key)) break;
+					}
+				}
+			},
+
+			_$forEachReverse: function(arr, callback, context){
+				if(util._$isArray(arr) || (arr && arr.length != undefined)){
+					for(var i = arr.length - 1; i >= 0; i --){
+						if(callback.call(context || arr[i], arr[i], i)) break;
 					}
 				}
 			},

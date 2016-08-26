@@ -1,7 +1,22 @@
 define([
 	'./eventEmitter',
-	'../util/util'
-],function(EventEmitter, u){
+	'../util/util',
+	'../core/controller'
+],function(EventEmitter, u, Controller){
+
+
+	function getAttr(element){
+		var
+			ret = {};
+		u._$forEach(element.attributes, function(attr){
+			ret[attr.name.replace(/-(\w)/, function(all, letter){
+				return letter.toUpperCase();
+			})] = attr.value;
+		});
+
+		return ret;
+	}
+
 	var
 
 		Compiler = EventEmitter._$extend({
@@ -15,6 +30,11 @@ define([
 
 				};
 
+				//controller manager
+				this.__controllerManager = {
+
+				};
+
 				//filter manager
 				this.__FilterManager = {
 
@@ -22,7 +42,7 @@ define([
 			},
 
 			_$registerController: function(name, fn){
-				this.__directiveManager[name] = fn;
+				this.__controllerManager[name] = fn;
 			},
 
 			_$registerDirective: function(name, fn){
@@ -65,17 +85,7 @@ define([
 				}, this);
 
 				
-				function getAttr(element){
-					var
-						ret = {};
-					u._$forEach(element.attributes, function(attr){
-						ret[attr.name.replace(/-(\w)/, function(all, letter){
-							return letter.toUpperCase();
-						})] = attr.value;
-					});
-
-					return ret;
-				}
+				
 
 
 				return function(model){
@@ -87,25 +97,25 @@ define([
 						model = model._$new();
 					}
 
-					u._$forEach(linkFns, function(linkFn){
-						linkFn.call(this, element, attr, model);
-					}, this);
-
 					u._$forEach(linkFns.childLinkFns, function(childLinkFn){
 						childLinkFn.call(this, model);
 					}, this);
+					u._$forEachReverse(linkFns, function(linkFn){
+						linkFn.call(this, element, attr, model);
+					}, this);
+					
 				}
 				
 			},
 
 			__collectDirectives: function(element){
 				var
-					attrs = element.attributes,
+					attrs = getAttr(element),
 					ret = [];
+				u._$forEach(attrs, function(value, name){
 
-				u._$forEach(attrs, function(attr){
-					if(this.__directiveManager[attr.name] != undefined){
-						ret.push(attr.name);
+					if(this.__directiveManager[name] != undefined){
+						ret.push(name);
 					}
 				}, this);
 				return ret;
@@ -113,6 +123,21 @@ define([
 
 		}),
 		instance = new Compiler();
+
+
+	//gt-controller	
+	instance._$registerDirective('gtController', {
+		scope: true,
+		_$link: function(element, attr, model){
+			var
+				controllerName = attr.gtController,
+				controllerFn = instance.__controllerManager[controllerName];
+			if(u._$isFunction(controllerFn)){
+				controllerFn.call(this, model);
+				model._$digest();
+			}
+		}
+	});
 
 	return instance;
 })

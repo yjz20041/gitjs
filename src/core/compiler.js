@@ -1,11 +1,13 @@
 define([
 	'./eventEmitter',
 	'../util/util',
-	'../core/controller'
-],function(EventEmitter, u, Controller){
+	'./directive',
+	'../element/element'
+],function(EventEmitter, u, Directive, $){
 
 
 	function getAttr(element){
+		//console.log(element)
 		var
 			ret = {};
 		u._$forEach(element.attributes, function(attr){
@@ -17,59 +19,84 @@ define([
 		return ret;
 	}
 
+	function getTextpolatorAttrNodes(element){
+		var
+			ret = [];
+		u._$forEach(element.attributes, function(attrNode){
+			if(attrNode.value.match(/\{\{(.+)\}\}/)){
+				ret.push(attrNode);
+			}
+		});
+
+		return ret;
+	}
+
+
+
 	var
+		controllerManager = {},
+		directiveManager = {},
+		filterManager = {},
 
 		Compiler = EventEmitter._$extend({
 			
 			__init: function(options){
 
 				this.__super(options);
-
-				//direcitve manager
-				this.__directiveManager = {
-
-				};
-
-				//controller manager
-				this.__controllerManager = {
-
-				};
-
-				//filter manager
-				this.__FilterManager = {
-
-				};
 			},
 
 			_$registerController: function(name, fn){
-				this.__controllerManager[name] = fn;
+				controllerManager[name] = fn;
 			},
 
 			_$registerDirective: function(name, fn){
-				this.__directiveManager[name] = fn;
+				directiveManager[name] = fn;
 			},
 
 
 			_$compile: function(element){
 				var
-					directiveNames = this.__collectDirectives(element),
+					directiveNames,
 					directive,
 					linkFns = [],
 					createChildModel,
-					attr = getAttr(element);
+					_$attr;
+
+				//console.log(element.nodeType, element.nodeValue, element.parentNode)
+
+				if(element.nodeType == 1){
+
+					u._$forEach(getTextpolatorAttrNodes(element), function(attrNode){
+						linkFns.attrLinkFns = linkFns.attrLinkFns || [];
+						linkFns.attrLinkFns.push(this._$compile(attrNode));
+					}, this);
+
+					directiveNames = this.__collectDirectives(element);
+					_$attr = getAttr(element);
+				}
+				//textNode interpolator
+				else if(element.nodeType == '2' && element.value.match(/\{\{(.+)\}\}/) || element.nodeType == '3' && element.parentNode.tagName.toLowerCase() != 'script'  && element.nodeValue.match(/\{\{(.+)\}\}/)){
+					directiveNames = ['gtInterpolator'];					
+					_$attr = {
+						'gtInterpolator': RegExp.$1  							
+					};
+				}
+
 
 				u._$forEach(directiveNames, function(name){
-					directive = this.__directiveManager[name];
+					directive = directiveManager[name];
 					if(u._$isFunction(directive)){
-						directive = new directive();
+						directive = new directive({
+							element: element
+						});
 					}
 					//create child model
 					if(directive._$model === true){
 						createChildModel = true;
 					}
 
-					if(u._$isFunction(directive._$compile)){
-						directive._$compile(element, attr);
+					if(u._$isFunction(directive._$compile)){ 
+						directive._$compile(element, _$attr);
 					}
 
 					if(u._$isFunction(directive._$link)){
@@ -78,20 +105,20 @@ define([
 					
 
 				}, this);
-
-				u._$forEach(u._$getChildElements(element), function(childElement){
-					linkFns.childLinkFns = linkFns.childLinkFns || [];
-					linkFns.childLinkFns.push(this._$compile(childElement));
-				}, this);
-
+				
+				if(element.nodeType != '2' && element.nodeType != '3'){
+					u._$forEach(element.childNodes, function(childNode){
+						linkFns.childLinkFns = linkFns.childLinkFns || [];
+						linkFns.childLinkFns.push(this._$compile(childNode));
+					}, this);
+				
+				}
 				
 				
 
 
 				return function(model){
 					
-					var
-						attr = getAttr(element);
 
 					if(createChildModel === true){
 						model = model._$new();
@@ -100,8 +127,14 @@ define([
 					u._$forEach(linkFns.childLinkFns, function(childLinkFn){
 						childLinkFn.call(this, model);
 					}, this);
+
+					u._$forEach(linkFns.attrLinkFns, function(attrLinkFn){
+						attrLinkFn.call(this, model);
+					}, this);
+
+
 					u._$forEachReverse(linkFns, function(linkFn){
-						linkFn.call(this, element, attr, model);
+						linkFn.call(this, element, _$attr, model);
 					}, this);
 					
 				}
@@ -114,10 +147,15 @@ define([
 					ret = [];
 				u._$forEach(attrs, function(value, name){
 
-					if(this.__directiveManager[name] != undefined){
+					if(directiveManager[name] != undefined){
 						ret.push(name);
 					}
 				}, this);
+
+				ret.sort(function(a, b){
+					return (directiveManager[b]._$priority || 0) - (directiveManager[a]._$priority || 0);
+				});
+
 				return ret;
 			}
 
@@ -127,17 +165,50 @@ define([
 
 	//gt-controller	
 	instance._$registerDirective('gtController', {
-		scope: true,
+		_$model: true,
 		_$link: function(element, attr, model){
 			var
 				controllerName = attr.gtController,
-				controllerFn = instance.__controllerManager[controllerName];
+				controllerFn = controllerManager[controllerName];
 			if(u._$isFunction(controllerFn)){
-				controllerFn.call(this, model);
+				controllerFn.call(this, model, element);
 				model._$digest();
 			}
 		}
 	});
 
-	return instance;
+	instance._$registerDirective('gtBind', Directive._$extend({
+		_$link: function(element, attr, model){
+			var
+				key = attr['gtBind'];
+
+			this.__super(element, attr, model);
+
+			model._$on(key, function(newVal, oldVal){
+
+				element.innerText = newVal;	
+			});
+			
+			
+		}
+	}));
+
+	instance._$registerDirective('gtInterpolator', Directive._$extend({
+		_$priority: -100,
+		_$link: function(node/*textNode or attrNode*/, attr, model){
+			var
+				key = attr['gtInterpolator'];
+
+			this.__super(node, attr, model);
+
+			model._$on(key, function(newVal, oldVal){
+				attr.value = newVal;//don't forget to update attr
+				node.nodeType == 3 ? node.nodeValue = newVal : node.value = newVal;	
+			});
+			
+			
+		}
+	}));
+
+	return Compiler;
 })

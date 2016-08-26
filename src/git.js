@@ -1,18 +1,22 @@
 define([
-	'./core/eventEmitter',
-	'./core/controller',
-	'./core/directive',
-	'./core/filter',
 	'./core/model',
 	'./core/compiler'
-], function(EventEmitter, Controller, Directive, Filter, Model, Compiler){
+], function(Model, Compiler){
 	var
-		Git = EventEmitter._$extend({
+		Git = Compiler._$extend({
 			
-			__init: function(){
+			__init: function(options){
 
 				this.__super();
-				
+
+				this.__rootModel = new Model();	
+
+				this.__domTree = options && options.domTree || document;			
+			},
+
+			_$bootstrap: function(){
+				this._$compile(this.__domTree)(this.__rootModel);
+			
 			}			
 
 		}),

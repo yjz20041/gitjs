@@ -6,6 +6,8 @@ define([
 	var
 		Directive = EventEmitter._$extend({
 			
+			_$priority: 0,
+
 			__init: function(options){
 
 				this.__super(options);
@@ -14,7 +16,8 @@ define([
 				this.__element = options.element;
 
 				//model
-				this.__model = options.model;				
+				this.__model = options.model;
+
 			},
 
 			_$setModel: function(model){

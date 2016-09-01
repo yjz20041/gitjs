@@ -40,6 +40,10 @@ define(function(){
 				return this._$type(b) == 'boolean';
 			},
 
+			_$isNaN: function(nan){
+				return this._$isNumber(nan) && isNaN(nan);
+			},
+
 			_$isDom: function(obj){
 			    if(typeof HTMLElement == 'object'){
 			      	return obj instanceof HTMLElement;

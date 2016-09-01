@@ -8,9 +8,14 @@
 
 define([
 	'./eventEmitter',
-	'../util/util'
-], function(EventEmitter, u){
+	'../util/util',
+	'./expParser'
+], function(EventEmitter, u, ExpParser){
+
 	var
+		parser = new ExpParser(),
+		initValue = function(){},
+
 		Model = EventEmitter._$extend({
 			__children: [],
 
@@ -20,6 +25,8 @@ define([
 				this.__children = [];
 
 			},
+
+			
 
 			_$set: function(key, value){
 				var
@@ -45,7 +52,9 @@ define([
 			},
 
 			_$appendChild: function(model){
+
 				this.__children.push(model);
+
 				model._$setParent(this);
 			},
 
@@ -72,62 +81,65 @@ define([
 				/*if(this[key] == undefined){
 					this._$set(key, undefined);
 				}*/
-				this._$addEvent(key, handler);
+				if(this._$hasEvent(key)){
+					this._$addEvent(key, handler);
+				}else{
+					this._$addEvent(key, {
+						last: initValue,
+						get: parser._$parse(key),
+						fn: handler					
+					});
+				}
+					
 			},
 
 			_$off: function(key, handler){
 				this._$removeEvent(key, handler)
 			},
 
-			_$digest: function(key){
+			_$digest: function(isRoot, count){
+				
 				var
-					context = {};
-				if(key){
-					context[key] = this[key];
-				}else{
-					context = this;
-				}
+					watches = this._$getEvent(),
+					dirty = false,
+					i = 0;
+				count = count || 0;
 
-				u._$forEach(context, function(map, key){
+
+				u._$forEach(watches, function(handlers, key){
 					var
-						newValue,
-						oldValue,
-						i = 0;
-					
-					if(map.isData !== true) return;
+						proxy = handlers[0],
+						get = proxy.get,
+						oldValue = proxy.last,
+						newValue = get(this);
 
-
-					while(map.dirty != false){
-						newValue = map.newValue;
-						oldValue = map.oldValue;
-
-						u._$forEach(this._$children(), function(childModel){
-							childModel._$digest(key);
-						});
-
-						map.oldValue = newValue;
-						
+					proxy.last = newValue;
+	
+					if(oldValue != newValue && !(u._$isNaN(oldValue) && u._$isNaN(newValue))){
 						this._$dispatchEvent(key, newValue, oldValue, this);
-
-						if(map.oldValue == map.newValue){
-							map.dirty = false;
-						}
-
-						i ++;
-						if(i > 10){
-							u._$error('too much food, indigestion!');
-							break;
-						}
+						dirty = true;
 					}
+
 
 				}, this);
 
-				if(key == undefined){
+				if(dirty == true){
+					count ++;
+					if(count > 10){
+						u._$error('too much recursive digestion');
+						return;
+					}
+					this._$digest(false, count);
+
+
+				}else if(isRoot !== false){
+
 					u._$forEach(this._$children(), function(childModel){
+
 						childModel._$digest();
 					});
 				}
-					
+
 
 			},
 
@@ -150,6 +162,13 @@ define([
 
 				return childModel;
 
+			},
+
+			_$destroy: function(){
+
+				if(this.__parent){
+					this.__parent._$removeChild(this);
+				}
 			}
 
 		});

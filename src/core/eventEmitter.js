@@ -17,6 +17,10 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 
 	}
 
+	pro._$getEvent = function(){
+		return this.__events;
+	}
+
 
 	/**
 	 * @method	_$addEvent
@@ -26,10 +30,14 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 	 * return{Void}
 	 */
 	pro._$addEvent = function(type, handler){
-		if(u._$isFunction(handler)){
+		if(u._$isFunction(handler) || u._$isObject(handler)){
 			this.__events[type] = this.__events[type] || [];
 			this.__events[type].push(handler);
 		}
+	}
+
+	pro._$hasEvent = function(type){
+		return this.__events[type] ? true : false;
 	}
 
 	/**
@@ -44,6 +52,9 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 			handlers = this.__events[type];
 		if(u._$isFunction(handler)){
 			u._$forEach(handlers, function(item, i){
+				if(u._$isObject(item)){
+					item = item.fn
+				}
 				if(item == handler){
 					handlers.splice(i, 1);
 					return true;
@@ -76,6 +87,9 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 			handlers = this.__events[type],
 			args = u._$slice(arguments, 1);
 		u._$forEach(handlers, function(item, i){
+			if(u._$isObject(item)){
+				item = item.fn
+			}
 			item.apply(this, args);
 		}, this);
 	}

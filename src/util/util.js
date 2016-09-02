@@ -7,7 +7,7 @@ define(function(){
 		concat = _r.concat,
 		util = {
 			_$error: function(message){
-				throw (new Error(message));
+				throw(new Error(message));
 			},
 
 			_$type: function(o){

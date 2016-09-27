@@ -72,12 +72,14 @@ define(function(){
 				return /^<.+>.*<\/.+>$/.test(str);
 			},
 
+			
 
 			_$merge: function(deep){
 				var
 					target,
 					srcArray;
 				if(util._$isBoolean(deep)){
+					console.log(util._$isObject(arguments[1]))
 					target = util._$isObject(arguments[1]) || util._$isArray(arguments[1]) ? arguments[1] :{};
 					srcArray = slice.call(arguments, 2);
 				}else{
@@ -89,7 +91,11 @@ define(function(){
 					if(util._$isObject(src) || util._$isArray(src)){
 						util._$forEach(src,function(val, key){
 							if(deep === true && (util._$isObject(val) || util._$isArray(val))){
-								target[key] = util._$isObject(val) ? {} : [];
+								
+								if(!util._$isObject(target[key]) && !util._$isObject(target[key])){
+									target[key] = util._$isObject(val) ? {} : [];
+								}
+									
 								util._$merge(deep, target[key], val);
 							}else{
 								target[key] = val;
@@ -258,6 +264,19 @@ define(function(){
 			  	}else{
 			    	element.fireEvent("on" + event.eventType, event);
 			  	}
+		    },
+
+		    _$indexOf: function(array, obj){
+		    	var
+		    		ret;
+		    	this._$forEach(array, function(item, i){
+		    		if(item == obj){
+		    			ret = i;
+		    			return true;
+		    		}
+		    	});
+
+		    	return ret;
 		    },
 
 		    _$under2camel: function(string){

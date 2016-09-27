@@ -24,26 +24,23 @@ define([
 				
 				this.__children = [];
 
+				this.__dirtyMap = {};
+
 			},
 
 			
 
 			_$set: function(key, value){
-				var
-					map = this[key] = this[key] || {};
-				map.isData = true;
-				map.oldValue = map.newValue;
-				map.newValue = value;
-
-				if(map.oldValue != map.newValue){
-					map.dirty = true;
+				if(u._$isString(value)){
+					value = '"' + value + '"';
 				}
+				this._$apply(key + '=' + value);
+
+				this.__dirtyMap[key] = true;
 			},
 
 			_$get: function(key){
-				var
-					map = this[key] || {};
-				return map.newValue;
+				return parser._$parse(key)(this);
 			},
 
 
@@ -62,6 +59,7 @@ define([
 				u._$forEach(this.__children, function(child, i){
 					if(child == model){
 						this.__children.splice(i, 1);
+						return true;
 					}
 				}, this)
 			},
@@ -84,6 +82,7 @@ define([
 				if(this._$hasEvent(key)){
 					this._$addEvent(key, handler);
 				}else{
+
 					this._$addEvent(key, {
 						last: initValue,
 						get: parser._$parse(key),
@@ -97,22 +96,66 @@ define([
 				this._$removeEvent(key, handler)
 			},
 
-			_$digest: function(isRoot, count){
-				
+			_isEmpty: function(obj){
 				var
-					watches = this._$getEvent(),
-					dirty = false,
-					i = 0;
-				count = count || 0;
+					ret = true;
+
+				u._$forEach(obj, function(){
+					ret = false;
+					return true;
+				})
+
+				return ret;
+			},
+
+			_$digest: function(){
+				var
+					count = 0;
+					
+				while(!this._isEmpty(this.__dirtyMap)){
+
+					count ++ ;
+					if(count > 10){
+						u._$error('too much circulation, undigest');
+					}
+
+					u._$forEach(this.__dirtyMap, function(t, key){
+						var
+							handlers = this._$getEvent(key),
+							proxy,
+							get,
+							oldValue,
+							newValue;
+
+						delete this.__dirtyMap[key];
+
+						if(!handlers) return false;
+
+						proxy = handlers[0],
+						get = proxy.get,
+						oldValue = proxy.last,
+						newValue = get(this);
+						proxy.last = newValue;
+		
+						if(oldValue != newValue && !(u._$isNaN(oldValue) && u._$isNaN(newValue))){
+							this._$dispatchEvent(key, newValue, oldValue, this);
+						}
+					}, this);
+
+					u._$forEach(this._$children(), function(childModel){
+
+						childModel._$digest();
+					});
+				}
+				e = new Date();					
 
 
-				u._$forEach(watches, function(handlers, key){
+				/*u._$forEach(watches, function(handlers, key){
 					var
 						proxy = handlers[0],
 						get = proxy.get,
 						oldValue = proxy.last,
 						newValue = get(this);
-
 					proxy.last = newValue;
 	
 					if(oldValue != newValue && !(u._$isNaN(oldValue) && u._$isNaN(newValue))){
@@ -120,25 +163,25 @@ define([
 						dirty = true;
 					}
 
+ 
+				}, this);*/
 
-				}, this);
-
-				if(dirty == true){
+				/*if(dirty == true){
 					count ++;
 					if(count > 10){
 						u._$error('too much recursive digestion');
 						return;
 					}
-					this._$digest(false, count);
+					this._$digest(count);
 
 
-				}else if(isRoot !== false){
+				}else{
 
 					u._$forEach(this._$children(), function(childModel){
 
 						childModel._$digest();
 					});
-				}
+				}*/
 
 
 			},
@@ -146,7 +189,8 @@ define([
 			
 
 			_$apply: function(expression){
-				/*waitting... :) */
+
+				parser._$parse(expression)(this);
 			},
 
 			_$new: function(){

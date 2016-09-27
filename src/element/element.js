@@ -36,8 +36,19 @@ function(EventEmitter, u, Selector, Event){
 			},
 
 			__initElements: function(){
+
+				if(this.__selectors == 'document'){
+					this._$setElements([document]);
+				}
+				else if(this.__selectors == 'body'){
+					this._$setElements([document.body]);
+				}
+				//virtual dom
+				else if(this.__selectors instanceof EventEmitter){
+					this._$setElements([this.__selectors._$getDom()]);
+				}
 				// html
-				if(u._$isHtml(this.__selectors)){
+				else if(u._$isHtml(this.__selectors)){
 					tempElement = document.createElement('div');
 					tempElement.innerHTML = this.__selectors;
 					this._$setElements(u._$getChildElements(tempElement));
@@ -732,6 +743,17 @@ function(EventEmitter, u, Selector, Event){
 						representive.appendChild(node);
 					});
 					
+				}else if(u._$isHtml(element)){
+
+					u._$forEach(this._$get(), function(node){
+						var 
+							newElement = new Element({
+								selectors: element
+							});
+						node.appendChild(newElement[0]);
+
+					})
+					
 				}
 				return this;
 			},
@@ -745,6 +767,13 @@ function(EventEmitter, u, Selector, Event){
 			_$appendTo: function(element){
 				var
 					representive;
+
+				if(u._$isHtml(element)){
+					element = new Element({
+						selectors: element
+					});
+				}
+
 				if(element instanceof Element){
 					representive = element._$get(0);
 				}
@@ -770,6 +799,12 @@ function(EventEmitter, u, Selector, Event){
 			_$prepend: function(element){
 				var
 					representive = this._$get(0);
+
+				if(u._$isHtml(element)){
+					element = new Element({
+						selectors: element
+					});
+				}
 				if(u._$isElement(element)){
 					u._$prependElement(representive, element);
 				}else if(element instanceof Element){
@@ -791,6 +826,13 @@ function(EventEmitter, u, Selector, Event){
 				var
 					representive,
 					firstChild;
+				
+				if(u._$isHtml(element)){
+					element = new Element({
+						selectors: element
+					});
+				}
+
 				if(element instanceof Element){
 					representive = element._$get(0);
 					firstChild = representive.firstChild;
@@ -817,6 +859,13 @@ function(EventEmitter, u, Selector, Event){
 			_$before: function(element){
 				var
 					representive;
+				
+				if(u._$isHtml(element)){
+					element = new Element({
+						selectors: element
+					});
+				}
+
 				if(element instanceof Element){
 					representive = element._$get(0);
 				}
@@ -843,6 +892,13 @@ function(EventEmitter, u, Selector, Event){
 				var
 					representive,
 					nextSibling;
+
+				if(u._$isHtml(element)){
+					element = new Element({
+						selectors: element
+					});
+				}
+
 				if(element instanceof Element){
 					representive = element._$get(0);
 					nextSibling = u._$getSiblingElement(representive);
@@ -947,17 +1003,19 @@ function(EventEmitter, u, Selector, Event){
 				return this;
 			}			
 
-		});
+		}),
+		exports = function(selectors, context){
+			if(!(selectors instanceof Element)){
+				return new Element({
+					selectors: selectors,
+					context: context
+				});
+			}else{
+				return selectors;
+			}
+		};
+		exports.clazz = Element
 
-	return function(selectors, context){
-		if(!(selectors instanceof Element)){
-			return new Element({
-				selectors: selectors,
-				context: context
-			});
-		}else{
-			return selectors;
-		}
-	}
+	return exports;
 
 });

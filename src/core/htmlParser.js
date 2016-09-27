@@ -1,7 +1,8 @@
 define([
 	'./eventEmitter',
-	'../util/util'
-],function(EventEmitter, u){
+	'../util/util',
+	'./vDom'
+],function(EventEmitter, u, VDom){
 
 
 	var
@@ -358,16 +359,56 @@ define([
 				this.__lexer = new Lexer();
 				this.__tokens = this.__lexer._$lex(text);
 				fn  = this._statements();
-
-				console.log(this.__tokens)
 				return fn;
 			},
 
 			_statements: function(){
 				
-			}
+				return this._consume();
+			},
 
-			
+			_consume: function(){
+				var
+					token,
+					parentNode = [],
+					node,
+					type,
+					tagName,
+					nodeType,
+					attrName,
+					attrValue,
+					text;
+
+
+				while(this.__tokens.length){
+
+					token = this.__tokens.shift();
+
+					type = token.type;
+
+					if(type == 'startTag'){
+
+						node = new VDom(token);
+						if(parentNode[0]){
+							parentNode[0].appendChild(node);
+						}
+						parentNode.unshift(node);
+
+					}else if(type == 'attribute'){
+
+						attrName = token.name;
+						attrValue = token.value;
+						node.setAttribute(attrName, attrValue);
+
+					}else if(type == 'endTag'){
+						node = parentNode.shift();
+					}
+
+				}
+
+				return node;
+									
+			}
 
 		});
 

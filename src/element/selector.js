@@ -171,9 +171,16 @@ function(EventEmitter, u){
 						element.findingStart = element.findingStart.parentNode;
 						
 						//stop judging if parentnode is  document
-						if(element.findingStart == document){
+						if(this.__context instanceof Array){
+							
+							if(element.findingStart == document){
+								break;
+							}							
+
+						}else if(element.findingStart == this.__context){
 							break;
 						}
+						
 
 						
 

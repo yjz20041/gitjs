@@ -72,7 +72,9 @@ define([
 
 			'!': function(scope, left){				
 				return !left(scope);				
-			}
+			},
+
+			'=': function(){}
 		}
 	var
 		Lexer = EventEmitter._$extend({
@@ -171,6 +173,9 @@ define([
 							});
 							this.__index ++;
 						}
+					}else{
+						u._$error('expression sythnax error:' + text);
+						return null;
 					}
 				}
 
@@ -374,9 +379,19 @@ define([
 			},
 
 			_assignment: function(){
-				var
-					left = this._ternary();
-				return left;
+				var left = this._ternary(),
+			    	right,
+			    	token;
+			    if(token = this._expect('=')){
+			      	if(!left.assign) {
+			        	u._$error('implies assignment but can not be assigned to', token);
+			      	}
+			      	right = this._ternary();
+			      	return function(scope){
+			        	return left.assign(scope, right(scope));
+			      	};
+			    }
+			    return left;
 			},
 
 			_ternary: function(){
@@ -484,8 +499,25 @@ define([
 				}else if(this._expect('[')){
 					//
 				}else{
-
 					left = this._expect().fn; 
+				}
+
+				left.assign = function(scope, right){
+					var
+						keys = text.split(/[\.\[]/);
+					if(u._$isString(right)){
+						right = right.replace(/[\"\']/g, '');
+					}
+					u._$forEach(keys, function(key, i){
+
+						key = key.replace(/[\]\"\']/g, '');
+						if( i == keys.length - 1){
+							scope[key] = right;
+						}else if(u._$isObject(scope) || u._$isArray(scope)){
+							scope = scope[key];
+						}
+						
+					});
 				}
 
 				return left;
@@ -494,14 +526,6 @@ define([
 			
 		});
 	
-	/*var
-		parser = new Parser();
-
-	 console.log(parser._$parse('\"123\"')({
-	 	a: {
-	 		b: [1,2,3,4]
-	 	}
-	 }))*/
-
+	
 	return ExpParser;
 })

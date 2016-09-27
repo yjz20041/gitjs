@@ -17,8 +17,8 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 
 	}
 
-	pro._$getEvent = function(){
-		return this.__events;
+	pro._$getEvent = function(type){
+		return type ? this.__events[type] : this.__events;
 	}
 
 

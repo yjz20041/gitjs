@@ -15,6 +15,18 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 		//the map of event
 		this.__events = {};
 
+		this.__autoAddEvents(options);
+
+	}
+
+	pro.__autoAddEvents = function(options){
+		
+		u._$forEach(options, function(val, key){
+			if(/^on/.test(key) && u._$isFunction(val)){
+				this._$addEvent(key, val);
+			}
+		}, this);
+
 	}
 
 	pro._$getEvent = function(type){
@@ -85,16 +97,21 @@ define(['./clazz', '../util/util'], function(Clazz, u){
 	pro._$dispatchEvent = function(type){
 		var
 			handlers = this.__events[type],
-			args = u._$slice(arguments, 1);
+			args = u._$slice(arguments, 1),
+			ret;
 		u._$forEach(handlers, function(item, i){
 			if(u._$isObject(item)){
 				item = item.fn
 			}
-			item.apply(this, args);
+			ret = item.apply(this, args);
+			if(ret === false){
+				return true;
+			}
 		}, this);
+
+		return ret;
 	}
 
-	
 
 
 	return EventEmitter;

@@ -79,7 +79,6 @@ define(function(){
 					target,
 					srcArray;
 				if(util._$isBoolean(deep)){
-					console.log(util._$isObject(arguments[1]))
 					target = util._$isObject(arguments[1]) || util._$isArray(arguments[1]) ? arguments[1] :{};
 					srcArray = slice.call(arguments, 2);
 				}else{
@@ -105,6 +104,10 @@ define(function(){
 				});
 				
 				return target;
+			},
+
+			_$copy: function(obj){
+				return this._$merge(true, {}, obj);
 			},
 
 			_$forEach: function(obj, callback, context){
@@ -544,7 +547,67 @@ define(function(){
             		childElements = this._$getChildElements(childElements[0]);
             	}
             	return ret;
-            }
+            },
+
+            /**
+			 * @method	_$json2param
+			 * @describe transfer from json to string with & signal
+			 * @param{JSON} data for transfering
+			 * @return{String}
+			 */
+            _$json2param: function(data){
+            	var
+            		ret = [];
+            	this._$forEach(data, function(val, key){
+            		ret.push(key + '=' + val);
+            	});
+            	return ret.join('&');
+            },
+
+            _$parse: function(str){
+
+				return window.JSON ? JSON.parse(str) : eval('(' + str + ')');
+			},
+
+			_$stringify: function(obj){
+				var
+					ret = '',
+					bObject,
+					bArray,
+					head = true;
+				if(window.JSON){
+					return JSON.stringify(obj);
+				}else{
+					if(util._$isObject(obj)){
+						ret += '{';
+						bObject = true;
+					}else if(util._$isArray(obj)){
+						ret += '[';
+						bArray = true;
+					}
+					util._$foreach(obj, function(val, key){
+						if(head){
+							head = false;
+						}else{
+							ret += ',';
+						}
+						if(util._$isObject(val) || util._$isArray(val)){
+							ret += '"' + key + '":"' + this._$stringify(val) + '"';
+						}else if(bArray){
+							ret += val;
+						}else{
+							ret += '"' + key + '":"' + val + '"';
+						}
+						
+					});
+					if(util._$isObject(obj)){
+						ret += '}';
+					}else if(util._$isArray(obj)){
+						ret += ']';
+					}
+					return ret;
+				}
+			}
 
 		}
 	return util;

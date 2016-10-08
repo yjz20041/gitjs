@@ -81,6 +81,14 @@ define(function(){
 				merge(this, obj, superProto)
 			}
 
+			//static method
+			for(var key in this){
+				if(this.hasOwnProperty(key) && this[key] != extend && isFunction(this[key])){
+					Clazz[key] = this[key];
+				}
+					
+			}
+
 			
 
 			return Clazz;

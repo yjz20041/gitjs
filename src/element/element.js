@@ -69,6 +69,7 @@ function(EventEmitter, u, Selector, Event){
 				}
 				//element
 				else if(u._$isElement(this.__selectors)){
+
 					this._$setElements([this.__selectors]);
 				}
 			},
@@ -285,6 +286,37 @@ function(EventEmitter, u, Selector, Event){
 				var
 					representive = this._$get(0);
 				return representive.offsetHeight;
+			},
+
+
+			_$text: function(value){
+				var
+					elements = this._$get();
+				if(value == undefined){
+					return elements[0].innerText;
+				}else{
+					u._$forEach(elements, function(element){
+						element.innerText = value;
+					});
+				}
+				return this;
+			},
+
+			_$html: function(html){
+				var
+					elements = this._$get();
+				if(html == undefined){
+					return elements[0].innerHTML;
+				}else{
+					u._$forEach(elements, function(element){
+						element.innerHTML = html;
+					});
+				}
+				return this;
+			},
+
+			_$content: function(){
+				
 			},
 
 
@@ -1001,7 +1033,7 @@ function(EventEmitter, u, Selector, Event){
 
 				}, this);
 				return this;
-			}			
+			}		
 
 		}),
 		exports = function(selectors, context){

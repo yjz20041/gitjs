@@ -79,16 +79,21 @@ define([
 				/*if(this[key] == undefined){
 					this._$set(key, undefined);
 				}*/
+				var
+					initHandler = {
+						last: initValue,
+						get: parser._$parse(key),
+						fn: handler	
+					};
+					
 				if(this._$hasEvent(key)){
 					this._$addEvent(key, handler);
 				}else{
 
-					this._$addEvent(key, {
-						last: initValue,
-						get: parser._$parse(key),
-						fn: handler					
-					});
+					this._$addEvent(key, initHandler);
 				}
+
+				handler.call(this, this[key], initHandler.last); 
 					
 			},
 
@@ -146,9 +151,7 @@ define([
 
 						childModel._$digest();
 					});
-				}
-				e = new Date();					
-
+				}					
 
 				/*u._$forEach(watches, function(handlers, key){
 					var

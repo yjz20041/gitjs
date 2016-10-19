@@ -53,7 +53,7 @@ define(function(){
 			},
 
 			_$isElement: function(dom){
-				return dom && dom.nodeType == 1 && typeof dom.nodeName == 'string';
+				return dom && dom.nodeType && typeof dom.nodeName == 'string';
 			},
 
 			_$isBlankObject: function(obj){

@@ -5,11 +5,6 @@ define([
 	'../element/element'
 ],function(EventEmitter, u, Directive, $){
 
-	
-
-	
-	
-
 
 	function getAttr(element){
 		//console.log(element)
@@ -100,11 +95,11 @@ define([
 					}
 
 					if(u._$isFunction(directive._$compile)){ 
-						directive._$compile(element, _$attr);
+						directive._$compile($(element), _$attr);
 					}
 
 					if(u._$isFunction(directive._$link)){
-						linkFns.push(directive._$link);
+						linkFns.push(directive._$link._$bind(directive));
 					}	
 					
 
@@ -138,7 +133,7 @@ define([
 
 
 					u._$forEachReverse(linkFns, function(linkFn){
-						linkFn.call(this, element, _$attr, model);
+						linkFn.call(this, $(element), _$attr, model);
 					}, this);
 					
 				}
@@ -163,12 +158,19 @@ define([
 				return ret;
 			}
 
-		}),
-		instance = new Compiler();
+		});
 
+	
+	Compiler._$registerController = function(name, fn){
+		controllerManager[name] = fn;
+	};
+
+	Compiler._$registerDirective = function(name, fn){
+		directiveManager[name] = fn;
+	};
 
 	//gt-controller	
-	instance._$registerDirective('gtController', {
+	Compiler._$registerDirective('gtController', {
 		_$model: true,
 		_$link: function(element, attr, model){
 			var
@@ -181,7 +183,7 @@ define([
 		}
 	});
 
-	instance._$registerDirective('gtBind', Directive._$extend({
+	Compiler._$registerDirective('gtBind', Directive._$extend({
 		_$link: function(element, attr, model){
 			var
 				key = attr['gtBind'];
@@ -190,24 +192,24 @@ define([
 
 			model._$on(key, function(newVal, oldVal){
 
-				element.innerText = newVal;	
+				element._$text(newVal);	
 			});
 			
 			
 		}
 	}));
 
-	instance._$registerDirective('gtInterpolator', Directive._$extend({
+	Compiler._$registerDirective('gtInterpolator', Directive._$extend({
 		_$priority: -100,
 		_$link: function(node/*textNode or attrNode*/, attr, model){
 			var
 				key = attr['gtInterpolator'];
 
 			this.__super(node, attr, model);
-
+			
 			model._$on(key, function(newVal, oldVal){
 				attr.value = newVal;//don't forget to update attr
-				node.nodeType == 3 ? node.nodeValue = newVal : node.value = newVal;	
+				node[0].nodeType == 3 ? node[0].nodeValue = newVal : node[0].value = newVal;	
 			});
 			
 			

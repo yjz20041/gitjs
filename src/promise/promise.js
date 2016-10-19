@@ -127,9 +127,11 @@ define([
 
 		promise = Promise._$promise();
 
+		if(arguments.length == 0) promise._$resolve();
+		
 		for(; i < arguments.length; i ++){
 			func = arguments[i];
-			ret = func.apply(this);
+			ret = u._$isFunction(func) ? func.apply(this) : func;
 			if(ret instanceof Promise){
 				ret._$then(function(){
 					waitCount --;
@@ -137,6 +139,7 @@ define([
 						promise._$resolve();
 					}
 				}, function(){
+					
 					promise._$reject();
 				});
 			}else{

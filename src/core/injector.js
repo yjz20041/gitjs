@@ -1,6 +1,6 @@
 define([
-	'./eventEmitter',
-	'../util/util'
+	'./eventEmitter.js',
+	'../util/util.js'
 ],function(EventEmitter, u){
 	var
 		Injector = EventEmitter._$extend({

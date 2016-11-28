@@ -6,7 +6,7 @@
  *
  */
 
-define(['./clazz', '../util/util'], function(Clazz, u){
+define(['./clazz.js', '../util/util.js'], function(Clazz, u){
 	var
 		EventEmitter = Clazz(),
 		pro = EventEmitter.prototype;

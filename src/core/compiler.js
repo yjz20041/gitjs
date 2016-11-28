@@ -1,8 +1,8 @@
 define([
-	'./eventEmitter',
-	'../util/util',
-	'./directive',
-	'../element/element'
+	'./eventEmitter.js',
+	'../util/util.js',
+	'./directive.js',
+	'../element/element.js'
 ],function(EventEmitter, u, Directive, $){
 
 

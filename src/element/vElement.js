@@ -1,11 +1,11 @@
 define([
-	'./element',
-	'../util/util',
-	'./selector',
-	'../event/event',
-	'../core/vDom',
-	'../core/gitDiff',
-	'../core/htmlParser'
+	'./element.js',
+	'../util/util.js',
+	'./selector.js',
+	'../event/event.js',
+	'../core/vDom.js',
+	'../core/gitDiff.js',
+	'../core/htmlParser.js'
 ],function(Element, u, Selector, Event, VDom, gitDiff, HtmlParser){
 	var
 		vTree = new VDom({

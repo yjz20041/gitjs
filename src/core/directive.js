@@ -1,7 +1,7 @@
 define([
-	'./eventEmitter',
-	'../util/util',
-	'./model'
+	'./eventEmitter.js',
+	'../util/util.js',
+	'./model.js'
 ],function(EventEmitter, u, model){
 	var
 		Directive = EventEmitter._$extend({

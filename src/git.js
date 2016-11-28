@@ -1,6 +1,6 @@
 define([
-	'./core/model',
-	'./core/compiler'
+	'./core/model.js',
+	'./core/compiler.js'
 ], function(Model, Compiler){
 	var
 		Git = Compiler._$extend({

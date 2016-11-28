@@ -7,8 +7,8 @@
  */
 
 define([
-	'../core/eventEmitter',
-	'../util/util'
+	'../core/eventEmitter.js',
+	'../util/util.js'
 	
 ],
 

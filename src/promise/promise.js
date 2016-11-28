@@ -1,7 +1,7 @@
 define([
-	'../core/eventEmitter',
-	'../util/util',
-	'./callback'
+	'../core/eventEmitter.js',
+	'../util/util.js',
+	'./callback.js'
 ],function(EventEmitter, u, Callback){
 	var
 		Promise = EventEmitter._$extend({

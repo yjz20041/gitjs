@@ -1,11 +1,11 @@
 define([
-	'../core/eventEmitter',
-	'../util/util',
-	'./history',
-	'../promise/promise',
-	'../ajax/ajax',
-	'../core/directive',
-	'../core/compiler'
+	'../core/eventEmitter.js',
+	'../util/util.js',
+	'./history.js',
+	'../promise/promise.js',
+	'../ajax/ajax.js',
+	'../core/directive.js',
+	'../core/compiler.js'
 ],function(EventEmitter, u, History, Promise, Ajax, Directive, Compiler){
 	var
 		history = new History(),

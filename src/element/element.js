@@ -7,10 +7,10 @@
  */
 
 define([
-	'../core/eventEmitter',
-	'../util/util',
-	'./selector',
-	'../event/event'
+	'../core/eventEmitter.js',
+	'../util/util.js',
+	'./selector.js',
+	'../event/event.js'
 ],
 
 function(EventEmitter, u, Selector, Event){

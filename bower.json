@@ -1,0 +1,18 @@
+{
+  "name": "gitjs",
+  "homepage": "https://github.com/yjz20041/gitjs",
+  "authors": [
+    "hzyangjiezheng <hzyangjiezheng@corp.netease.com>"
+  ],
+  "description": "",
+  "main": "git.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

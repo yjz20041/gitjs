@@ -7,9 +7,9 @@
  */
 
 define([
-	'./eventEmitter',
-	'../util/util',
-	'./expParser'
+	'./eventEmitter.js',
+	'../util/util.js',
+	'./expParser.js'
 ], function(EventEmitter, u, ExpParser){
 
 	var

@@ -1,7 +1,7 @@
 define([
-	'./eventEmitter',
-	'../util/util',
-	'./vDom'
+	'./eventEmitter.js',
+	'../util/util.js',
+	'./vDom.js'
 ],function(EventEmitter, u, VDom){
 
 

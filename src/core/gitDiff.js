@@ -1,7 +1,7 @@
 define([
-	'./eventEmitter',
-	'../util/util',
-	'../element/element'
+	'./eventEmitter.js',
+	'../util/util.js',
+	'../element/element.js'
 ],function(EventEmitter, u, $){
 	var
 		GitDiff = EventEmitter._$extend({

@@ -100,6 +100,21 @@ define([
 
 					if(u._$isFunction(directive._$link)){
 						linkFns.push(directive._$link._$bind(directive));
+					}
+
+					//create template
+					if(directive.template){
+						
+						if(directive.transclude){
+
+							element.parentNode.insertBefore(u._$html2node(directive.template), element);
+							element.parentNode.removeChild(element);
+
+						}else{
+
+							element.innerHTML = directive.template;
+						}
+							
 					}	
 					
 

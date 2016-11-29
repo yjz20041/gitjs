@@ -607,6 +607,26 @@ define(function(){
 					}
 					return ret;
 				}
+			},
+
+			_$html2node: function(html){
+				var
+					frag = document.createDocumentFragment(),
+					temp = document.createElement('div'),
+					childNodes;
+				temp.innerHTML = html;
+				childNodes = temp.childNodes;
+				if(childNodes.length == 1){
+					return childNodes[0];
+				}else if(childNodes.length > 1){
+					this._$forEach(childNodes, function(node){
+						frag.appendChild(node);
+					});
+
+					return frag;
+				}else{
+					return null;
+				}
 			}
 
 		}

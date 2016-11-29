@@ -143,7 +143,14 @@ define([
 			__collectDirectives: function(element){
 				var
 					attrs = getAttr(element),
-					ret = [];
+					ret = [],
+					tagName = element.tagName.toLowerCase();
+
+				//add element tag name
+				if(directiveManager[tagName] != undefined){
+					ret.push(tagName);
+				}
+
 				u._$forEach(attrs, function(value, name){
 
 					if(directiveManager[name] != undefined){

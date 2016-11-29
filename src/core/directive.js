@@ -1,7 +1,7 @@
 define([
-	'./eventEmitter.js',
-	'../util/util.js',
-	'./model.js'
+	'gitjs/core/eventEmitter',
+	'gitjs/util/util',
+	'gitjs/core/model'
 ],function(EventEmitter, u, model){
 	var
 		Directive = EventEmitter._$extend({

@@ -1,6 +1,6 @@
 define([
-	'../core/directive.js',
-	'../util/util.js'
+	'gitjs/core/directive',
+	'gitjs/util/util'
 ],function(Directive, u){
 	var
 		HelloDirective = Directive._$extend({

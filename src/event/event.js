@@ -8,9 +8,9 @@
  */
 
 define([
-	'../core/eventEmitter.js',
-	'../util/util.js',
-	'./gitEvent.js'
+	'gitjs/core/eventEmitter',
+	'gitjs/util/util',
+	'gitjs/event/gitEvent'
 ], 
 function(EventEmitter, u, GitEvent){
 	var

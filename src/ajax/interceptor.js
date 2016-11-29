@@ -1,6 +1,6 @@
 define([
-	'../core/eventEmitter',
-	'../util/util'
+	'gitjs/core/eventEmitter',
+	'gitjs/util/util'
 ],function(EventEmitter, u){
 	var
 		cache = [],

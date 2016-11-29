@@ -1,6 +1,6 @@
 define([
-	'../core/eventEmitter.js',
-	'../util/util.js'
+	'gitjs/core/eventEmitter',
+	'gitjs/util/util'
 ],function(EventEmitter, u){
 	var
 		Callback = EventEmitter._$extend({

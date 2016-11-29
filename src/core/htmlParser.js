@@ -1,7 +1,7 @@
 define([
-	'./eventEmitter.js',
-	'../util/util.js',
-	'./vDom.js'
+	'gitjs/core/eventEmitter',
+	'gitjs/util/util',
+	'gitjs/core/vDom'
 ],function(EventEmitter, u, VDom){
 
 

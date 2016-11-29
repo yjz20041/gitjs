@@ -1,7 +1,7 @@
 define([
-	'../promise/promise',
-	'../util/util',
-	'./interceptor'
+	'gitjs/promise/promise',
+	'gitjs/util/util',
+	'gitjs/ajax/interceptor'
 ],function(Promise, u, Interceptor){
 	var
 		Ajax = Promise._$extend({

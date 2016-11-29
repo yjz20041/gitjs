@@ -1,7 +1,7 @@
 define([
-	'./eventEmitter.js',
-	'../util/util.js',
-	'./gitDiff.js'
+	'gitjs/core/eventEmitter',
+	'gitjs/util/util',
+	'gitjs/core/gitDiff'
 ],function(EventEmitter, u, gitDiff){
 	var
 		map = {

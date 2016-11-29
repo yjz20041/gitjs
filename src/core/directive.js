@@ -13,10 +13,10 @@ define([
 				this.__super(options);
 
 				//element
-				this.__element = options.element;
+				//this.__element = options.element;
 
 				//model
-				this.__model = options.model;
+				//this.__model = options.model;
 
 			},
 

@@ -31,6 +31,13 @@ define([
 			
 
 			_$set: function(key, value){
+
+				if(u._$isObject(key)){
+					u._$forEach(key, function(v, k){
+						this._$set(k, v);
+					}._$bind(this));
+				}
+
 				if(u._$isString(value)){
 					value = '"' + value + '"';
 				}

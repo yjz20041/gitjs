@@ -60,7 +60,9 @@ define([
 					directive,
 					linkFns = [],
 					createChildModel,
-					_$attr;
+					_$attr,
+					childNodes,
+					isTranscludeNode;
 
 				//console.log(element.nodeType, element.nodeValue, element.parentNode)
 
@@ -104,15 +106,12 @@ define([
 
 					//create template
 					if(directive.template){
-						
+					
+						element.innerHTML = directive.template;
+
 						if(directive.transclude){
 
-							element.parentNode.insertBefore(u._$html2node(directive.template), element);
-							element.parentNode.removeChild(element);
-
-						}else{
-
-							element.innerHTML = directive.template;
+							isTranscludeNode = true;
 						}
 							
 					}	
@@ -121,12 +120,26 @@ define([
 				}, this);
 				
 				if(element.nodeType != '2' && element.nodeType != '3'){
-					u._$forEach(element.childNodes, function(childNode){
+					u._$forEach(element.childNodes, function(childNode, i){
 						linkFns.childLinkFns = linkFns.childLinkFns || [];
 						linkFns.childLinkFns.push(this._$compile(childNode));
+
 					}, this);
 				
 				}
+				//remove element if transclude is true
+				if(isTranscludeNode){
+					childNodes = u._$slice(element.childNodes);
+					u._$forEach(childNodes, function(childNode, i){
+						element.parentNode.insertBefore(childNode, element);
+						if(i == childNodes.length - 1){
+							element.parentNode.removeChild(element);
+						}
+					});
+						
+				}
+
+
 				
 				
 

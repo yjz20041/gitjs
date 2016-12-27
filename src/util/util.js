@@ -232,9 +232,9 @@ define(function(){
             	return gitId;
             },
 
-		    _$addEvent: function(element, type, handler){
+		    _$addEvent: function(element, type, handler, capture){
 		    	if(element.addEventListener){
-		    		element.addEventListener(type, handler, false);
+		    		element.addEventListener(type, handler, capture || false);
 		    	}else{
 		    		element.attachEvent('on' + type, handler);
 		    	}
@@ -317,11 +317,14 @@ define(function(){
                     return { browser: match[1] || "", version: match[2] || "0" };
                 };
                 
-                var userAgent = $window.navigator.userAgent;
+                var userAgent = window.navigator.userAgent;
                 return uaMatch(userAgent);
             },
+            _$isIE: function(){
+            	return  this._$getBrowser().browser == 'msie';
+            },
             _$isIE8: function(){
-                var browser = this.getBrowser();
+                var browser = this._$getBrowser();
                 if (browser.browser == 'msie' && browser.version == '8.0') return true;
                 else return false;
             },

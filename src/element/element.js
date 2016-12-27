@@ -55,7 +55,6 @@ function(EventEmitter, u, Selector, Event){
 				}
 				//selectors
 				else if(u._$isString(this.__selectors)){
-
 					this.__elementSelector = new Selector({
 						selectors: this.__selectors,
 						context: this.__context
@@ -124,6 +123,7 @@ function(EventEmitter, u, Selector, Event){
 
 				var
 					ret;
+
 				
 				u._$forEach(this._$get(), function(element){
 
@@ -330,6 +330,12 @@ function(EventEmitter, u, Selector, Event){
 			_$attr: function(key, value){
 				var
 					elements = this._$get();
+				if(u._$isObject(key)){
+					u._$forEach(key, function(v, k){
+						this._$attr(k, v);
+					}._$bind(this));
+					return this;
+				}
 				if(value == undefined){
 					return elements[0].getAttribute(key);
 				}else{
@@ -534,7 +540,7 @@ function(EventEmitter, u, Selector, Event){
 			 */
 			_$hasClass: function(className){
 				var
-					regClassName = new RegExp('\\s*' + className + '\\s*'),
+					regClassName = new RegExp('^(.*\\s)?' + className + '(\\s.*)?$'),
 					representive = this._$get(0);
 				return regClassName.test(representive.className);
 			},
@@ -1008,14 +1014,16 @@ function(EventEmitter, u, Selector, Event){
 					//for unwraping
 					wrappedElement.originElement = node;
 					//update matched elements
-					this.__elements[i] = wrappedElement;
+					//this.__elements[i] = wrappedElement;
 					
 					node.parentNode.replaceChild(wrappedElement, node);
 					innerMostElement = u._$getInnerMostElement(wrappedElement);	
 					innerMostElement.appendChild(node);
 				}, this);
 
-				return this;
+				return new Element({
+					selectors: wrappedElement
+				});
 			},
 
 			/**
@@ -1030,6 +1038,30 @@ function(EventEmitter, u, Selector, Event){
 
 					//update matched elements
 					this.__elements[i] = node.originElement;
+
+				}, this);
+				return this;
+			},
+
+			_$value: function(val){
+				var
+					representive = this._$get()[0];
+				if(val != undefined){
+					u._$forEach(this._$get(), function(node, i){
+						node.value = val;
+					});
+					return this;
+				}else{
+					return representive.value;
+				}
+			},
+
+			_$show: function(show){
+				var
+					args = arguments;
+				u._$forEach(this._$get(), function(node, i){
+
+					this._setCss(node, 'display', show || args.length == 0 ? '' : 'none');
 
 				}, this);
 				return this;

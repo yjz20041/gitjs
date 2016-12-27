@@ -14,7 +14,7 @@ define([
 
 function(EventEmitter, u){
 	var
-		regSplit = /([\w|\*]+)?(#|\.)?[\w|\*]+(\[\w+=?(\w+)?\])?(:\w+)?(\s*>\s*)?/g,
+		regSplit = /(#|\.)?[\w\-\*]+(\[[\w\-]+=?([\w\-]+)?\])?(:[\w\-]+)?(\s*>\s*)?/g,
 
 		// 1 tag name
 		// 2 flag; 
@@ -23,7 +23,7 @@ function(EventEmitter, u){
 		// 6 attr value
 		// 8 pseudo
 		// 9 parent
-		regFragment = /^([\w|\*]+)?(#|\.)?([\w|\*]+)?(\[(\w+)=?(\w+)?\])?(:(\w+))?(\s*>\s*)?$/,
+		regFragment = /^([\w\-\*]+)?(#|\.)?([\w\-\*]+)?(\[([\w\-]+)=?([\w\-]+)?\])?(:([\w\-]+))?(\s*>\s*)?$/,
 
 		Selector = EventEmitter._$extend({
 			
@@ -100,12 +100,18 @@ function(EventEmitter, u){
 
 				if(context instanceof Array){
 					
-					this._finding = context;
+					//this._finding = context;
+					u._$forEach(context, function(item){
+						this._finding.push(item);
+						this._finding = u._$concat(this._finding, item.getElementsByTagName('*'));
+					}, this)
 
 				}else{
 					this._finding.push(context);
-					this._finding = context.getElementsByTagName('*');
+					this._finding = u._$concat(this._finding,context.getElementsByTagName('*'));
+					
 				}
+
 
 				for(; i >= 0; i --){
 					
@@ -133,7 +139,6 @@ function(EventEmitter, u){
 
 				}
 
-
 				return this._finding;
 
 			},
@@ -158,6 +163,8 @@ function(EventEmitter, u){
 				}else if(isParent){
 
 					element.findingStart = element.findingStart.parentNode;
+
+
 					
 					return this._judgeFlag(element.findingStart, tagName, flag, tagValue) && this._judgeAttr(element.findingStart, attrName, attrValue);
 				
@@ -219,8 +226,7 @@ function(EventEmitter, u){
 					return false;
 				}
 
-
-				return (flag == '.' && (new RegExp('^\\s*' + tagValue + '\\s*$')).test(element.className)
+				return (flag == '.' && (new RegExp('^(.*\\s)?' + tagValue + '(\\s.*)?$')).test(element.className)
 					|| flag == '#' && element.id == tagValue
 					|| !flag && (domTag == tagName) || tagName == '*');
 			},

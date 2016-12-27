@@ -36,6 +36,12 @@ define([
 					u._$forEach(key, function(v, k){
 						this._$set(k, v);
 					}._$bind(this));
+					return;
+				}
+
+				if(u._$isFunction(value)){
+					this[key] = value;
+					return;
 				}
 
 				if(u._$isString(value)){
@@ -199,7 +205,6 @@ define([
 			
 
 			_$apply: function(expression){
-
 				parser._$parse(expression)(this);
 			},
 

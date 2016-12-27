@@ -54,7 +54,7 @@ define([
 			},
 
 
-			_$compile: function(element){
+			_$compile: function(element, externalContext){
 				var
 					directiveNames,
 					directive,
@@ -122,7 +122,7 @@ define([
 				if(element.nodeType != '2' && element.nodeType != '3'){
 					u._$forEach(element.childNodes, function(childNode, i){
 						linkFns.childLinkFns = linkFns.childLinkFns || [];
-						linkFns.childLinkFns.push(this._$compile(childNode));
+						linkFns.childLinkFns.push(this._$compile(childNode, externalContext));
 
 					}, this);
 				
@@ -132,6 +132,9 @@ define([
 					childNodes = u._$slice(element.childNodes);
 					u._$forEach(childNodes, function(childNode, i){
 						element.parentNode.insertBefore(childNode, element);
+						if(i == 0){
+							element.ref = $(childNode);
+						}
 						if(i == childNodes.length - 1){
 							element.parentNode.removeChild(element);
 						}
@@ -161,7 +164,7 @@ define([
 
 
 					u._$forEachReverse(linkFns, function(linkFn){
-						linkFn.call(this, $(element), _$attr, model);
+						linkFn.call(this, $(element), _$attr, model, externalContext);
 					}, this);
 					
 				}
@@ -234,6 +237,28 @@ define([
 		}
 	}));
 
+	Compiler._$registerDirective('gtValue', Directive._$extend({
+		_$link: function(element, attr, model){
+			var
+				key = attr['gtValue'];
+
+			this.__super(element, attr, model);
+
+			model._$on(key, function(newVal, oldVal){
+
+				element._$value(newVal);
+
+			});
+
+			element._$on('keyup', function(){
+				model._$set(key, element._$value());
+				model._$digest();
+			});
+			
+			
+		}
+	}));
+
 	Compiler._$registerDirective('gtInterpolator', Directive._$extend({
 		_$priority: -100,
 		_$link: function(node/*textNode or attrNode*/, attr, model){
@@ -243,6 +268,7 @@ define([
 			this.__super(node, attr, model);
 			
 			model._$on(key, function(newVal, oldVal){
+				if(newVal == undefined) newVal = '';
 				attr.value = newVal;//don't forget to update attr
 				node[0].nodeType == 3 ? node[0].nodeValue = newVal : node[0].value = newVal;	
 			});
@@ -250,6 +276,45 @@ define([
 			
 		}
 	}));
+
+	//events
+	var
+		events = ['click', 'keydown', 'keyup', 'click', 'dbclick', 'mouseover', 'mouseenter', 'mouseleave', 'mousedown', 'mouseup', 'focus', 'blur'];
+	u._$forEach(events, function(item){
+		var
+			directiveName = u._$under2camel('gt-' + item),
+			type = item;
+		Compiler._$registerDirective(directiveName, Directive._$extend({
+			_$link: function(element, attr, model){
+				element._$on(type, function(event){
+					var
+						fn = model[attr[directiveName]];
+					if(u._$isFunction(fn)){
+						fn.call(this, event);
+						model._$digest();
+					}
+				}._$bind(this))	
+			}
+		}));
+	});
+
+	//show
+	Compiler._$registerDirective('gtShow', Directive._$extend({
+		_$link: function(element, attr, model){
+			var
+				key = attr['gtShow'];
+
+			this.__super(element, attr, model);
+
+			model._$on(key, function(newVal, oldVal){
+				element._$show(newVal);
+				
+			});
+			
+			
+		}
+	}));
+		
 
 	return Compiler;
 })

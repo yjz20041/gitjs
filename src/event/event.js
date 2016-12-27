@@ -69,7 +69,31 @@ function(EventEmitter, u, GitEvent){
 				//adding the supported event dynamicly to reduce the perfomance overhead of the event dispatcher 
 				if(!this.__supportedEventMap[type]){
 					this.__supportedEventMap[type] = true;
-					u._$addEvent(document, type, this._eventDispatcher._$bind(this));
+					if(type == 'focus' || type == 'blur'){
+						//IE
+						if(u._$isIE()){
+							switch(type){
+								case 'focus':
+									type = 'focusin';
+								break;
+								case 'blur':
+									type = 'focusout';
+								break;
+								default:
+								break;
+							}
+							u._$addEvent(document, type, this._eventDispatcher._$bind(this), false);
+						}else{
+							u._$addEvent(document, type, this._eventDispatcher._$bind(this), true);
+						}
+
+						
+
+					}else{
+
+						u._$addEvent(document, type, this._eventDispatcher._$bind(this));
+					}
+						
 				}
 
 			},
@@ -196,9 +220,9 @@ function(EventEmitter, u, GitEvent){
 					eventArea,
 					target = event.target || event.srcElement,
 					type = event.type;
-				
 				//we do so many judging is in order to reduce the perfomance overhead of the event dispatcher.
-				if(this.__supportedEventMap[event.type]){
+				//if target is document, it has no getattribute function
+				if(this.__supportedEventMap[event.type] && target != document){
 
 					gitId = target.getAttribute('gitId');
 					eventArea = this.__eventMap[gitId];

@@ -32,8 +32,15 @@ define([
 
 			},
 
-			_$link: function(element, model){
+			_$link: function($, attr, model){
+				this.__model = model;
+			},
 
+			_$set: function(key, value){
+				this.__model._$set(key, value);
+			},
+			_$get: function(key){
+				return this.__model._$get(key);
 			}
 
 		});

@@ -69,7 +69,7 @@ define(function(){
 			},
 
 			_$isHtml: function(str){
-				return /^<.+>.*<\/.+>$/.test(str);
+				return /^<.+/.test(str);
 			},
 
 			
@@ -222,352 +222,353 @@ define(function(){
 		        }
 		    })(),
 
-            _$setGitId: function(element){
-            	var
-            		gitId = element.getAttribute('gitId');
-            	if(gitId == undefined){
-            		gitId = this._$uniqueID();
-            		element.setAttribute('gitId', gitId);
-            	}
-            	return gitId;
-            },
+      _$setGitId: function(element){
+      	var
+      		gitId = element.getAttribute('gitId');
+      	if(gitId == undefined){
+      		gitId = this._$uniqueID();
+      		element.setAttribute('gitId', gitId);
+      	}
+      	return gitId;
+      },
 
-		    _$addEvent: function(element, type, handler, capture){
-		    	if(element.addEventListener){
-		    		element.addEventListener(type, handler, capture || false);
-		    	}else{
-		    		element.attachEvent('on' + type, handler);
-		    	}
-		    },
+	    _$addEvent: function(element, type, handler, capture){
+	    	if(element.addEventListener){
+	    		element.addEventListener(type, handler, capture || false);
+	    	}else{
+	    		element.attachEvent('on' + type, handler);
+	    	}
+	    },
 
-		    _$removeEvent: function(element, type, handler){
-		    	if(element.removeEventListener){
-		    		element.removeEventListener(type, handler, false);
-		    	}else{
-		    		element.detachEvent('on' + type, handler);
-		    	}
-		    },
+	    _$removeEvent: function(element, type, handler){
+	    	if(element.removeEventListener){
+	    		element.removeEventListener(type, handler, false);
+	    	}else{
+	    		element.detachEvent('on' + type, handler);
+	    	}
+	    },
 
-		    _$triggerEvent: function(element, type){
-		    	var 
-		    		event;
+	    _$triggerEvent: function(element, type){
+	    	var 
+	    		event;
 
-			  	if (document.createEvent) {
-			    	event = document.createEvent("HTMLEvents");
-			    	event.initEvent(type, true, true);
-			  	}else {
-			    	event = document.createEventObject();
-			    	event.eventType = type;
-			  	}
+		  	if (document.createEvent) {
+		    	event = document.createEvent("HTMLEvents");
+		    	event.initEvent(type, true, true);
+		  	}else {
+		    	event = document.createEventObject();
+		    	event.eventType = type;
+		  	}
 
-			  	event.eventName = type;
+		  	event.eventName = type;
 
-			  	if(document.createEvent){
-			    	element.dispatchEvent(event);
-			  	}else{
-			    	element.fireEvent("on" + event.eventType, event);
-			  	}
-		    },
+		  	if(document.createEvent){
+		    	element.dispatchEvent(event);
+		  	}else{
+		    	element.fireEvent("on" + event.eventType, event);
+		  	}
+	    },
 
-		    _$indexOf: function(array, obj){
-		    	var
-		    		ret;
-		    	this._$forEach(array, function(item, i){
-		    		if(item == obj){
-		    			ret = i;
-		    			return true;
-		    		}
-		    	});
+	    _$indexOf: function(array, obj){
+	    	var
+	    		ret;
+	    	this._$forEach(array, function(item, i){
+	    		if(item == obj){
+	    			ret = i;
+	    			return true;
+	    		}
+	    	});
 
-		    	return ret;
-		    },
+	    	return ret;
+	    },
 
-		    _$under2camel: function(string){
-		    	return string.replace(/\-(\w)/g, function(all, letter){
-                      return letter.toUpperCase();
-                });
-		    },
+	    _$under2camel: function(string){
+	    	return string.replace(/\-(\w)/g, function(all, letter){
+                    return letter.toUpperCase();
+              });
+	    },
 
-		    _$getIndex: function(element,deep){
-                var i = 0;
-                deep = deep || 1;
-                for (var j = 1; j < deep; j ++ ){
-                    element = element.parentNode;
-                }                                       
-                while( (element = element.previousSibling) != null ){                                             
-                    element.nodeType == 1 && i++;
-                } 
-                return i;
-            },
-            _$getBrowser: function(){
-                // Useragent RegExp
-                var rwebkit = /(webkit)[ \/]([\w.]+)/,
-                ropera = /(opera)(?:.*version)?[ \/]([\w.]+)/,
-                rmsie = /(msie) ([\w.]+)/,
-                rmozilla = /(mozilla)(?:.*? rv:([\w.]+))?/;
-                function uaMatch( ua ) {
-                    ua = ua.toLowerCase();
+	    _$getIndex: function(element,deep){
+          var i = 0;
+          deep = deep || 1;
+          for (var j = 1; j < deep; j ++ ){
+              element = element.parentNode;
+          }                                       
+          while( (element = element.previousSibling) != null ){                                             
+              element.nodeType == 1 && i++;
+          } 
+          return i;
+      },
+      _$getBrowser: function(){
+          // Useragent RegExp
+          var rwebkit = /(webkit)[ \/]([\w.]+)/,
+          ropera = /(opera)(?:.*version)?[ \/]([\w.]+)/,
+          rmsie = /(msie) ([\w.]+)/,
+          rmozilla = /(mozilla)(?:.*? rv:([\w.]+))?/;
+          function uaMatch( ua ) {
+              ua = ua.toLowerCase();
 
-                    var match = rwebkit.exec( ua ) ||
-                            ropera.exec( ua ) ||
-                            rmsie.exec( ua ) ||
-                            ua.indexOf("compatible") < 0 && rmozilla.exec( ua ) ||
-                            [];
+              var match = rwebkit.exec( ua ) ||
+                      ropera.exec( ua ) ||
+                      rmsie.exec( ua ) ||
+                      ua.indexOf("compatible") < 0 && rmozilla.exec( ua ) ||
+                      [];
 
-                    return { browser: match[1] || "", version: match[2] || "0" };
-                };
-                
-                var userAgent = window.navigator.userAgent;
-                return uaMatch(userAgent);
-            },
-            _$isIE: function(){
-            	return  this._$getBrowser().browser == 'msie';
-            },
-            _$isIE8: function(){
-                var browser = this._$getBrowser();
-                if (browser.browser == 'msie' && browser.version == '8.0') return true;
-                else return false;
-            },
-            _$GetCurrentStyle: function(element, prop){
+              return { browser: match[1] || "", version: match[2] || "0" };
+          };
+          
+          var userAgent = window.navigator.userAgent;
+          return uaMatch(userAgent);
+      },
+      _$isIE: function(){
+      	return  this._$getBrowser().browser == 'msie';
+      },
+      _$isIE8: function(){
+          var browser = this._$getBrowser();
+          if (browser.browser == 'msie' && browser.version == '8.0') return true;
+          else return false;
+      },
+      _$GetCurrentStyle: function(element, prop){
 
-            	var
-            		borderFragment,
-            		meta = ['-width', '-style', '-color'],
-            		i,
-            		tempProp,
-            		tempRet = '';
+      	var
+      		borderFragment,
+      		meta = ['-width', '-style', '-color'],
+      		i,
+      		tempProp,
+      		tempRet = '';
 
-                if (document.defaultView && document.defaultView.getComputedStyle){
-                    var propprop = prop.replace (/([A-Z])/g, "-$1");
-                    propprop = prop.toLowerCase ();
-                    return document.defaultView.getComputedStyle(element,null)[propprop];
-                }else if (element.currentStyle){//IE
+          if (document.defaultView && document.defaultView.getComputedStyle){
+              var propprop = prop.replace (/([A-Z])/g, "-$1");
+              propprop = prop.toLowerCase ();
+              return document.defaultView.getComputedStyle(element,null)[propprop];
+          }else if (element.currentStyle){//IE
 
-                	borderFragment = /^border(-\w+)?$/.exec(prop);
-                	if(borderFragment && borderFragment[0]){
-                		for(i = 0; i < meta.length; i ++){
-                			tempProp = borderFragment[1] ? prop + meta[i] : prop + '-left' + meta[i];
-                			tempProp = this._$under2camel(tempProp);
-                			tempProp = element.currentStyle[tempProp];
-                			tempRet += tempProp + ' ';
+          	borderFragment = /^border(-\w+)?$/.exec(prop);
+          	if(borderFragment && borderFragment[0]){
+          		for(i = 0; i < meta.length; i ++){
+          			tempProp = borderFragment[1] ? prop + meta[i] : prop + '-left' + meta[i];
+          			tempProp = this._$under2camel(tempProp);
+          			tempProp = element.currentStyle[tempProp];
+          			tempRet += tempProp + ' ';
 
-                			if(i == 1 && tempProp == 'none'){
-                				return 'none';
-                			}
-                		}
+          			if(i == 1 && tempProp == 'none'){
+          				return 'none';
+          			}
+          		}
 
-                		return tempRet;
-                		
-                	}else{
-                		prop = this._$under2camel(prop);
-                		return element.currentStyle[prop];
-                	}
-                    
-                    
-                }
-                return null;
-            },
-            _$getElementAbsPos: function(element){  
-                var t = element.offsetTop;  
-                var l = element.offsetLeft;  
-                while(element = element.offsetParent){  
-                    t += element.offsetTop;  
-                    l += element.offsetLeft;  
-                }                     
-                return {left:l,top:t};  
-            },
-            _$removeInlineStyle: function(element,arr){
-                var
-                      i,
-                      j,
-                      k,
-                      direction = ['-left','-top','-right','-bottom'],
-                      meta = ['-width', '-color', '-style'],
-                      fragment,
-                      temp;
-                if (typeof arr == 'string') arr = [arr];
+          		return tempRet;
+          		
+          	}else{
+          		prop = this._$under2camel(prop);
+          		return element.currentStyle[prop];
+          	}
+              
+              
+          }
+          return null;
+      },
+      _$getElementAbsPos: function(element){  
+          var t = element.offsetTop;  
+          var l = element.offsetLeft;  
+          while(element = element.offsetParent){  
+              t += element.offsetTop;  
+              l += element.offsetLeft;  
+          }                     
+          return {left:l,top:t};  
+      },
+      _$removeInlineStyle: function(element,arr){
+          var
+                i,
+                j,
+                k,
+                direction = ['-left','-top','-right','-bottom'],
+                meta = ['-width', '-color', '-style'],
+                fragment,
+                temp;
+          if (typeof arr == 'string') arr = [arr];
 
-                for (i = 0; i < arr.length; i ++){
-                        if (element.style.removeProperty){
-                            element.style.removeProperty(arr[i]);
-                        }else{
-                        	fragment = /^border(-\w+)?$/.exec(arr[i]);
+          for (i = 0; i < arr.length; i ++){
+                  if (element.style.removeProperty){
+                      element.style.removeProperty(arr[i]);
+                  }else{
+                  	fragment = /^border(-\w+)?$/.exec(arr[i]);
 
-                            //border should be remove by this special method in ie9-
-                            if(fragment && fragment[0]){
+                      //border should be remove by this special method in ie9-
+                      if(fragment && fragment[0]){
 
-                            	if(fragment[1]){
-                            		for(; j < meta.length; j ++ ){
-                            			temp = arr[i] + meta[j];
-                            			temp = this._$under2camel(temp);
-	                                	element.style.removeAttribute(temp);
-                            		}
-                            	}else{
-                            		for(k = 0; k < direction.length; k ++ ){
-                            			for(j = 0; j < meta.length; j ++ ){
-	                            			temp = arr[i] + direction[k] + meta[j];
-	                            			temp = this._$under2camel(temp);
-		                                	element.style.removeAttribute(temp);
-	                            		}
-                            		}
-                            	}
+                      	if(fragment[1]){
+                      		for(; j < meta.length; j ++ ){
+                      			temp = arr[i] + meta[j];
+                      			temp = this._$under2camel(temp);
+                            	element.style.removeAttribute(temp);
+                      		}
+                      	}else{
+                      		for(k = 0; k < direction.length; k ++ ){
+                      			for(j = 0; j < meta.length; j ++ ){
+                        			temp = arr[i] + direction[k] + meta[j];
+                        			temp = this._$under2camel(temp);
+                              	element.style.removeAttribute(temp);
+                        		}
+                      		}
+                      	}
 
-                            }else{
-                                arr[i] = arr[i].replace(/\-(\w)/g, function(all, letter){
-                                        return letter.toUpperCase();
-                                });
-                                element.style.removeAttribute(arr[i]);
-                            }
+                      }else{
+                          arr[i] = arr[i].replace(/\-(\w)/g, function(all, letter){
+                                  return letter.toUpperCase();
+                          });
+                          element.style.removeAttribute(arr[i]);
                       }
                 }
-                          
-            }, 
-            _$addCookie: function (key,value,expires){//add cookie with expires
-                   
-                $cookieStore.put(key,value);
-                expires || (expires = 0.5);
-                value = angular.toJson(value);
-                var str = key + "=" + value;
-                if(expires > 0){
-                    var date = new Date();
-                    var ms = expires*3600*1000;
-                    date.setTime(date.getTime() + ms);
-                    str += "; expires=" + date.toGMTString();
-                }
-                document.cookie = str;
-              
-            },
+          }
+                    
+      }, 
+      _$addCookie: function (key,value,expires){//add cookie with expires
+             
+          $cookieStore.put(key,value);
+          expires || (expires = 0.5);
+          value = angular.toJson(value);
+          var str = key + "=" + value;
+          if(expires > 0){
+              var date = new Date();
+              var ms = expires*3600*1000;
+              date.setTime(date.getTime() + ms);
+              str += "; expires=" + date.toGMTString();
+          }
+          document.cookie = str;
+        
+      },
             
-            _$getSiblingElement: function(element, next, all){
-            	var
-     				siblingElement,
-     				childNodes,
-     				ret = [];
-     			if(all === true){
-     				childNodes = element.parentNode.childNodes;
-     				this._$forEach(childNodes, function(node){
-     					if(node.nodeType == 1 && node != element){
-     						ret.push(node);
-     					}
-     				});
-     				return ret;
-     			}else{
-     				siblingElement = next === false ? element.previousSibling : element.nextSibling
-	     			while(siblingElement){
-	     				if(siblingElement.nodeType == 1){
-	     					if(all === true){
-	     						ret.push[siblingElement];
-	     					}else{
-	     						return siblingElement;
-	     					}    					
-	     				}
-	     				siblingElement =  next === false ? element.previousSibling : element.nextSibling;
-	     			}
-	     		}
-     			
-     			return null;
-            },
-            _$getParentElement: function(element, parents){
-            	var
-            		ret = [];
-            	
-            	if(parents !== true){
-            		return element.parentNode;
-            	}else{
-            		element = element.parentNode;
-            		while(element && element != document){
-            			ret.push(element);
-            			element = element.parentNode;
-            		}
-            		return ret;
-            	}
-            },
+      _$getSiblingElement: function(element, next, all){
+      	var
+   				siblingElement,
+   				childNodes,
+   				ret = [];
+   			if(all === true){
+   				childNodes = element.parentNode.childNodes;
+   				this._$forEach(childNodes, function(node){
+   					if(node.nodeType == 1 && node != element){
+   						ret.push(node);
+   					}
+   				});
+   				return ret;
+   			}else{
+   				siblingElement = next === false ? element.previousSibling : element.nextSibling
+     			while(siblingElement){
+     				if(siblingElement.nodeType == 1){
+     					if(all === true){
+     						ret.push[siblingElement];
+     					}else{
+     						return siblingElement;
+     					}    					
+     				}
+     				siblingElement =  next === false ? element.previousSibling : element.nextSibling;
+     			}
+     		}
+   			
+   			return null;
+      },
+      _$getParentElement: function(element, parents){
+      	var
+      		ret = [];
+      	
+      	if(parents !== true){
+      		return element.parentNode;
+      	}else{
+      		element = element.parentNode;
+      		while(element && element != document){
+      			ret.push(element);
+      			element = element.parentNode;
+      		}
+      		return ret;
+      	}
+      },
 
-            _$getDescendElements: function(element){
-            	var
-            		ret = [],
-            		childNodes = element.childNodes;
-            	this._$forEach(childNodes, function(node){
-            		if(node.nodeType == 1){
-            			ret.push(node);
-            			[].push.apply(ret, this._$getDescendElements(node));
-            		}
+      _$getDescendElements: function(element){
+      	var
+      		ret = [],
+      		childNodes = element.childNodes;
+      	this._$forEach(childNodes, function(node){
+      		if(node.nodeType == 1){
+      			ret.push(node);
+      			[].push.apply(ret, this._$getDescendElements(node));
+      		}
 
-            	}, this);
-            	return ret;
+      	}, this);
+      	return ret;
 
-            },
-            _$getChildElements: function(element, descend){
-            	var
-            		ret = [];
-            	
-            	if(descend !== true){
-            		this._$forEach(element.childNodes, function(node){
-            			if(node.nodeType == 1){
-            				ret.push(node);
-            			}
-            		});
-            		
-            	}else{
-            		ret = this._$getDescendElements(element);
-            		
-            	}
-            	return ret;
-            },
-            _$uniqueElementArray: function(array){
-            	var
-            		clear = {},
-            		ret = [],
-            		gitId;
-            	this._$forEach(array, function(item){
+      },
+      _$getChildElements: function(element, descend){
+      	var
+      		ret = [];
+      	
+      	if(descend !== true){
+      		this._$forEach(element.childNodes, function(node){
+      			if(node.nodeType == 1){
+      				ret.push(node);
+      			}
+      		});
+      		
+      	}else{
+      		ret = this._$getDescendElements(element);
+      		
+      	}
+      	return ret;
+      },
+      _$uniqueElementArray: function(array){
+      	var
+      		clear = {},
+      		ret = [],
+      		gitId;
+      	this._$forEach(array, function(item){
 					clear[this._$setGitId(item)] = item;
 				}, this);
             	this._$forEach(clear, function(val){
 					ret.push(val);
 				});
 				return ret;
-            },
+      },
 
-            _$prependElement: function(targetElement, srcElement){
-            	targetElement.firstChild ? targetElement.insertBefore(srcElement, targetElement.firstChild) : targetElement.appendChild(srcElement);
-            },
-            _$insertAfterElement: function(targetElement, srcElement){
-            	var
-            		nextSibling = this._$getSiblingElement(targetElement);
-            	if(nextSibling){
-            		targetElement.parentNode.insertBefore(srcElement, nextSibling);
-            	}else{
-            		targetElement.parentNode.appendChild(srcElement);
-            	}
-            },
+      _$prependElement: function(targetElement, srcElement){
 
-            _$getInnerMostElement: function(element){
-            	var
-            		childElements = this._$getChildElements(element),
-            		ret = element;
-            	while(childElements[0]){
-            		ret = childElements[0];
-            		childElements = this._$getChildElements(childElements[0]);
-            	}
-            	return ret;
-            },
+      	targetElement.firstChild ? targetElement.insertBefore(srcElement, targetElement.firstChild) : targetElement.appendChild(srcElement);
+      },
+      _$insertAfterElement: function(targetElement, srcElement){
+      	var
+      		nextSibling = this._$getSiblingElement(targetElement);
+      	if(nextSibling){
+      		targetElement.parentNode.insertBefore(srcElement, nextSibling);
+      	}else{
+      		targetElement.parentNode.appendChild(srcElement);
+      	}
+      },
 
-            /**
+      _$getInnerMostElement: function(element){
+      	var
+      		childElements = this._$getChildElements(element),
+      		ret = element;
+      	while(childElements[0]){
+      		ret = childElements[0];
+      		childElements = this._$getChildElements(childElements[0]);
+      	}
+      	return ret;
+      },
+
+      /**
 			 * @method	_$json2param
 			 * @describe transfer from json to string with & signal
 			 * @param{JSON} data for transfering
 			 * @return{String}
 			 */
-            _$json2param: function(data){
-            	var
-            		ret = [];
-            	this._$forEach(data, function(val, key){
-            		ret.push(key + '=' + val);
-            	});
-            	return ret.join('&');
-            },
+      _$json2param: function(data){
+      	var
+      		ret = [];
+      	this._$forEach(data, function(val, key){
+      		ret.push(key + '=' + val);
+      	});
+      	return ret.join('&');
+      },
 
-            _$parse: function(str){
+      _$parse: function(str){
 
 				return window.JSON ? JSON.parse(str) : eval('(' + str + ')');
 			},
@@ -630,7 +631,67 @@ define(function(){
 				}else{
 					return null;
 				}
-			}
+			},
+
+      _$string2object: function(str, split){
+        var
+          arr = str.split(split || '&'),
+          ret = {};
+        this._$forEach(arr, function(item){
+          item = item.split('=');
+          ret[item[0]] = item[1] || '';
+        });
+        return ret;
+      },
+      _$setParam: function(href, key, value){
+        var      
+          match = href.split('?'),
+          path = match[0],
+          param = match[1],
+          arr;
+        
+        if(!key) return;
+        if(param){
+          param = this._$string2object(param);
+          param[key] = value;
+          param = this._$object2string(param);
+        }else{
+          param = key + '=' + value;
+        }
+        return path + '?' + param;
+      },
+      _$getParam: function(href, key){
+        var      
+          match = href.split('?'),
+          path = match[0],
+          param = match[1],
+          arr;
+        
+        if(!key) return;
+        if(param){
+          param = this._$string2object(param);
+          return param[key];
+        }else{
+          return null;
+        }
+        
+      },
+      _$removeParam: function(href, key){
+        var      
+          match = href.split('?'),
+          path = match[0],
+          param = match[1],
+          arr;
+        
+        if(!key) return;
+        if(param){
+          param = this._$string2object(param);
+          delete param[key];
+          param = this._$object2string(param);
+        }
+        return path + '?' + param;
+      }
+
 
 		}
 	return util;

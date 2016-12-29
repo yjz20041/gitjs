@@ -290,7 +290,7 @@ define([
 					var
 						fn = model[attr[directiveName]];
 					if(u._$isFunction(fn)){
-						fn.call(this, event);
+						fn.call(model, event);
 						model._$digest();
 					}
 				}._$bind(this))	

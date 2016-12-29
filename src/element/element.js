@@ -293,10 +293,10 @@ function(EventEmitter, u, Selector, Event){
 				var
 					elements = this._$get();
 				if(value == undefined){
-					return elements[0].innerText;
+					return elements[0].textContent;
 				}else{
 					u._$forEach(elements, function(element){
-						element.innerText = value;
+						element.textContent = value;
 					});
 				}
 				return this;

@@ -63,15 +63,12 @@ function(EventEmitter, u, GitEvent){
 					dom.setAttribute('gitId', gitId);
 				}
 				eventArea = this.__eventMap[gitId] = this.__eventMap[gitId] || {};
-				eventArea[type] = eventArea[type] || [];
-				eventArea[type].push(handler);
-
+				
 				//adding the supported event dynamicly to reduce the perfomance overhead of the event dispatcher 
 				if(!this.__supportedEventMap[type]){
-					this.__supportedEventMap[type] = true;
 					if(type == 'focus' || type == 'blur'){
 						//IE
-						if(u._$isIE()){
+						if(u._$isIE8()){
 							switch(type){
 								case 'focus':
 									type = 'focusin';
@@ -85,16 +82,17 @@ function(EventEmitter, u, GitEvent){
 							u._$addEvent(document, type, this._eventDispatcher._$bind(this), false);
 						}else{
 							u._$addEvent(document, type, this._eventDispatcher._$bind(this), true);
-						}
-
-						
+						}						
 
 					}else{
-
 						u._$addEvent(document, type, this._eventDispatcher._$bind(this));
 					}
+					this.__supportedEventMap[type] = true;
 						
 				}
+
+				eventArea[type] = eventArea[type] || [];
+				eventArea[type].push(handler);
 
 			},
 
@@ -213,6 +211,7 @@ function(EventEmitter, u, GitEvent){
 			 * return{Void}
 			 */
 			_eventDispatcher: function(event){
+				
 				var
 					//git event object which cross platform
 					gitEvent,
@@ -226,7 +225,6 @@ function(EventEmitter, u, GitEvent){
 
 					gitId = target.getAttribute('gitId');
 					eventArea = this.__eventMap[gitId];
-					
 					if(eventArea && eventArea[type] && eventArea[type].length){
 						gitEvent = new GitEvent(event);
 						this._$trigger(target, type, gitEvent); 

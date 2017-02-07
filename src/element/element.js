@@ -24,7 +24,7 @@ function(EventEmitter, u, Selector, Event){
 				
 				this.__super();
 								
-
+				options = options || {};
 				this.__selectors = options.selectors;
 				this.__context = options.context || document;
 
@@ -594,14 +594,20 @@ function(EventEmitter, u, Selector, Event){
 
 
 			_find: function(selectors, context){
+				var
+					newElement;
 				if(selectors != undefined){
-					this._$setElements( (new Element({
+					  newElement = new Element({
 						selectors: selectors,
 						context: context
-					}))._$get() )
+					})
 				}else{
-					this._$setElements(context);
+					newElement = new Element();
+					newElement._$setElements(context);
 				}
+
+				return newElement;
+				
 			},
 			/**
 			 * @method	_$prev
@@ -621,9 +627,9 @@ function(EventEmitter, u, Selector, Event){
 					}
 				});
 
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 			/**
@@ -644,9 +650,9 @@ function(EventEmitter, u, Selector, Event){
 					}
 				});
 
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 			/**
@@ -667,9 +673,9 @@ function(EventEmitter, u, Selector, Event){
 					}
 				});
 
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 			/**
@@ -689,9 +695,9 @@ function(EventEmitter, u, Selector, Event){
 						context = context.concat(ancestorElements);
 					}
 				});
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 			/**
@@ -711,9 +717,9 @@ function(EventEmitter, u, Selector, Event){
 						context = childElements;
 					}
 				});
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 			/**
@@ -734,9 +740,9 @@ function(EventEmitter, u, Selector, Event){
 					}
 				});
 
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 
@@ -758,9 +764,9 @@ function(EventEmitter, u, Selector, Event){
 					}
 				});
 
-				this._find(selectors, context);
+				return this._find(selectors, context);
 					
-				return this;
+				//return this;
 			},
 
 

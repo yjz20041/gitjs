@@ -45,16 +45,16 @@ define(function(){
 			},
 
 			_$isDom: function(obj){
-			    if(typeof HTMLElement == 'object'){
-			      	return obj instanceof HTMLElement;
-			    }else{
-			      	return obj && obj.nodeType == 1 && typeof obj.nodeName == 'string';
-			    }
-			},
+          if(typeof HTMLElement == 'object'){
+              return obj instanceof HTMLElement;
+          }else{
+              return obj && obj.nodeType == 1 && typeof obj.nodeName == 'string';
+          }
+      },
 
-			_$isElement: function(dom){
-				return dom && dom.nodeType && typeof dom.nodeName == 'string';
-			},
+      _$isElement: function(dom){
+        return dom && dom.nodeType && typeof dom.nodeName == 'string';
+      },
 
 			_$isBlankObject: function(obj){
 				var

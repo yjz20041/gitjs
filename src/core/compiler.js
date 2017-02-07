@@ -7,7 +7,6 @@ define([
 
 
 	function getAttr(element){
-		//console.log(element)
 		var
 			ret = {};
 		u._$forEach(element.attributes, function(attr){
@@ -190,7 +189,7 @@ define([
 				}, this);
 
 				ret.sort(function(a, b){
-					return (directiveManager[b]._$priority || 0) - (directiveManager[a]._$priority || 0);
+					return (directiveManager[b].prototype._$priority || 0) - (directiveManager[a].prototype._$priority || 0);
 				});
 
 				return ret;
@@ -238,6 +237,7 @@ define([
 	}));
 
 	Compiler._$registerDirective('gtValue', Directive._$extend({
+		_$priority: -100,
 		_$link: function(element, attr, model){
 			var
 				key = attr['gtValue'];
@@ -268,6 +268,7 @@ define([
 			this.__super(node, attr, model);
 			
 			model._$on(key, function(newVal, oldVal){
+
 				if(newVal == undefined) newVal = '';
 				attr.value = newVal;//don't forget to update attr
 				node[0].nodeType == 3 ? node[0].nodeValue = newVal : node[0].value = newVal;	
@@ -279,13 +280,14 @@ define([
 
 	//events
 	var
-		events = ['click', 'keydown', 'keyup', 'click', 'dbclick', 'mouseover', 'mouseenter', 'mouseleave', 'mousedown', 'mouseup', 'focus', 'blur'];
+		events = ['click', 'change', 'keydown', 'keyup', 'click', 'dbclick', 'mouseover', 'mouseenter', 'mouseleave', 'mousedown', 'mouseup', 'focus', 'blur'];
 	u._$forEach(events, function(item){
 		var
 			directiveName = u._$under2camel('gt-' + item),
 			type = item;
 		Compiler._$registerDirective(directiveName, Directive._$extend({
 			_$link: function(element, attr, model){
+
 				element._$on(type, function(event){
 					var
 						fn = model[attr[directiveName]];
@@ -314,6 +316,23 @@ define([
 			
 		}
 	}));
+
+	/*Compiler._$registerDirective('gtClass', Directive._$extend({
+		_$link: function(element, attr, model){
+
+
+			var
+				str = attr['gtClass'];
+
+			this.__super(element, attr, model);
+
+			/^\{([\w\-\s])+:([\w\-\s])+\}$/g.replace(str, function(){
+				console.log(arguments)
+			})
+			
+			
+		}
+	}));*/
 		
 
 	return Compiler;

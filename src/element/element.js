@@ -594,17 +594,12 @@ function(EventEmitter, u, Selector, Event){
 
 
 			_find: function(selectors, context){
+				
 				var
-					newElement;
-				if(selectors != undefined){
-					  newElement = new Element({
-						selectors: selectors,
-						context: context
-					})
-				}else{
-					newElement = new Element();
-					newElement._$setElements(context);
-				}
+					newElement = new Element(),
+					selector;
+				selector = new Selector();
+				newElement._$setElements(selector._$filter(selectors || '*', context));
 
 				return newElement;
 				

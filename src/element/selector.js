@@ -30,24 +30,22 @@ function(EventEmitter, u){
 			__init: function(options){
 				this.__super();
 
-				options = options || {};
 				this.__selectors = options.selectors;
 				this.__context = options.context;
-				this.__isFilter = options.filter;
 
 				if(typeof this.__context == 'string'){
 					this.__context = this._$find(this.__context, document)._$get();
 				}
 
-				if(this.__context){
 
-					if(this.__isFilter){
-						this.__elements = this._$filter(this.__selectors, this.__context) || [];
-					}else{
-						this.__elements = this._$find(this.__selectors, this.__context) || [];
-					}	
-				}
-									
+
+				this.__elements = this._$find(this.__selectors, this.__context) || [];
+				
+					
+
+
+				//temp element container
+				this._finding = [];
 
 			},
 
@@ -70,10 +68,6 @@ function(EventEmitter, u){
 				return this._querySelectorAll(selectors, context);
 			},
 
-			_$filter: function(selectors, context){
-				return this._querySelectorAll(selectors, context, true);
-			},
-
 
 			/**
 			 * @method	_querySelectorAll
@@ -83,7 +77,7 @@ function(EventEmitter, u){
 			 * @param{Dom tree} context
 			 * @return{Array} the result is store in private property _finding
 			 */
-			_querySelectorAll: function(selectors, context, isFilter){
+			_querySelectorAll: function(selectors, context){
 				var					
 					parts = selectors.match(regSplit),
 					part,
@@ -104,20 +98,17 @@ function(EventEmitter, u){
 
 				this._finding = [];
 
-
 				if(context instanceof Array){
 					
 					//this._finding = context;
 					u._$forEach(context, function(item){
 						this._finding.push(item);
-						if(!isFilter)
-							this._finding = u._$concat(this._finding, item.getElementsByTagName('*'));
+						this._finding = u._$concat(this._finding, item.getElementsByTagName('*'));
 					}, this)
 
 				}else{
 					this._finding.push(context);
-					if(!isFilter)
-						this._finding = u._$concat(this._finding,context.getElementsByTagName('*'));
+					this._finding = u._$concat(this._finding,context.getElementsByTagName('*'));
 					
 				}
 
@@ -227,7 +218,7 @@ function(EventEmitter, u){
 			_judgeFlag: function(element, tagName, flag, tagValue){
 
 				var
-					domTag = element == document ? 'document' : element.tagName.toLowerCase();
+					domTag =  element.tagName.toLowerCase();
 
 
 
@@ -274,7 +265,10 @@ function(EventEmitter, u){
 
 
 
-			
+			_$filter: function(filter){
+				//waitting... : )
+			},
+
 
 			/**
 			 * @method	_$getDom

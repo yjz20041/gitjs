@@ -255,7 +255,10 @@ define([
 				model._$digest();
 			});
 			
-			
+			element._$on('blur', function(){
+				model._$set(key, element._$value());
+				model._$digest();
+			});
 		}
 	}));
 

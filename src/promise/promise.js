@@ -12,13 +12,13 @@ define([
 
 				this.__func = options.func;
 
-				this.__resolveCallback = new Callback({
+				this._$resolveCallback = new Callback({
 					
 					nonce: true,
 					memory: true
 				});
 
-				this.__rejectCallback = new Callback({
+				this._$rejectCallback = new Callback({
 					
 					nonce: true,
 					memory: true
@@ -56,8 +56,8 @@ define([
 			_$then: function(resolveFn, rejectFn){
 				var
 					pipes = [
-						['__resolveCallback', '_$resolve'],
-					 	['__rejectCallback', '_$reject']
+						['_$resolveCallback', '_$resolve'],
+					 	['_$rejectCallback', '_$reject']
 					 ],
 					_this = this,
 					args = arguments;
@@ -69,7 +69,6 @@ define([
 					u._$forEach(args, function(fn, i){
 						var
 							callback = _this[pipes[i][0]];
-
 						callback._$add(function(){
 							var
 								ret = fn.apply(_this, arguments);
@@ -95,12 +94,12 @@ define([
 			},
 
 			_$resolve: function(){
-				this.__resolveCallback._$fire.apply(this.__resolveCallback, arguments);
+				this._$resolveCallback._$fire.apply(this._$resolveCallback, arguments);
 				this.__state = 'resolve';
 			},
 
 			_$reject: function(){
-				this.__rejectCallback._$fire.apply(this.__rejectCallback, arguments);
+				this._$rejectCallback._$fire.apply(this._$rejectCallback, arguments);
 				this.__state = 'reject';
 			}						
 

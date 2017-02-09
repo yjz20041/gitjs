@@ -77,6 +77,19 @@ define([
 					this.__request = request = new window.ActiveXObject('Microsoft.XMLHTTP');
 				}
 
+				//method
+				method = method.toUpperCase();
+
+				//params
+				params = u._$json2param(params,true);
+				//console.log(params)
+				if(method == 'GET'){				
+					if(params){
+						url += '?' + params;
+					}
+						
+				}
+
 				//open request
 				request.open(method, url,  asyn);
 
@@ -107,17 +120,6 @@ define([
 				
 				}, this);
 
-				//method
-				method = method.toUpperCase();
-
-				//params
-				params = u._$json2param(params);
-				if(method == 'GET'){				
-					if(params){
-						url += '?' + params;
-					}
-						
-				}
 
 				request.onreadystatechange = function(){
 					var

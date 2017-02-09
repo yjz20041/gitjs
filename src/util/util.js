@@ -559,10 +559,13 @@ define(function(){
 			 * @param{JSON} data for transfering
 			 * @return{String}
 			 */
-      _$json2param: function(data){
+      _$json2param: function(data, encode){
       	var
       		ret = [];
       	this._$forEach(data, function(val, key){
+          if(encode){
+            val = encodeURIComponent(val);
+          }
       		ret.push(key + '=' + val);
       	});
       	return ret.join('&');

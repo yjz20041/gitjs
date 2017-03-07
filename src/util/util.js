@@ -17,7 +17,6 @@ define(function(){
 			},
 
 			_$isObject: function(o){
-
         //the _$type of undefined will return  [object object] in ie8
         if(o === undefined){
           return false;
@@ -564,10 +563,13 @@ define(function(){
 			 * @param{JSON} data for transfering
 			 * @return{String}
 			 */
-      _$json2param: function(data){
+      _$json2param: function(data, encode){
       	var
       		ret = [];
       	this._$forEach(data, function(val, key){
+          if(encode){
+            val = encodeURIComponent(val);
+          }
       		ret.push(key + '=' + val);
       	});
       	return ret.join('&');
@@ -700,5 +702,4 @@ define(function(){
 
 		}
 	return util;
-
 })

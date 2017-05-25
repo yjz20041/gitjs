@@ -17,11 +17,10 @@ define(function(){
       },
 
       _$isObject: function(o){
-        // the _$type of undefined will return  [object object] in ie8
-        if(o === undefined){
+        // the _$type of the null and undefined will return  [object object] in ie8
+        if(!o){
           return false;
         }
-        // the type of null and undefined will also be object in ie8
         return o && this._$type(o) == 'object' || (o && typeof o.nodeType === 'number' &&  typeof o.nodeName === 'string') || o == window;
       },
 

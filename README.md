@@ -1,1 +1,3 @@
 # gitjs
+
+### similar with angularjs.
